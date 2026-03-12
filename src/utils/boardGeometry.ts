@@ -35,6 +35,22 @@ export function getTileCoordinates(
   }
 }
 
+export type TileSide = 'bottom' | 'right' | 'top' | 'left' | 'corner'
+
+/**
+ * Returns which side of the board a tile is on, used to determine
+ * which edge of the tile faces the board center (for the stripe).
+ * Corners are identified first; otherwise derives from position ranges.
+ */
+export function getTileSide(position: number, tilesPerSide: number): TileSide {
+  const n = tilesPerSide - 1
+  if (position % n === 0) return 'corner'
+  if (position < n) return 'bottom'
+  if (position < 2 * n) return 'right'
+  if (position < 3 * n) return 'top'
+  return 'left'
+}
+
 export function wrapPosition(position: number, tilesPerSide: number): number {
   const total = getTileCount(tilesPerSide)
   return position % total

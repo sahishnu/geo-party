@@ -1,44 +1,180 @@
-import type { Tile, Team } from '../types/database'
-import { getTileColors } from '../utils/tileColors'
-import TeamToken from './TeamToken'
+import type { Tile, Team } from "../types/database";
+import type { TileSide } from "../utils/boardGeometry";
+import { getTileColors } from "../utils/tileColors";
+import TeamToken from "./TeamToken";
+
+const CORNER_ICONS: Partial<Record<string, string>> = {
+  start: "🚀",
+  jail: "🚔",
+  pot: "🪙",
+  pay_taxes: "💸",
+};
 
 interface Props {
-  tile: Tile
-  teams: Team[]
-  isCurrent?: boolean
-  style?: React.CSSProperties
+  tile: Tile;
+  teams: Team[];
+  isCurrent?: boolean;
+  side?: TileSide;
+  tileSize?: number;
+  style?: React.CSSProperties;
 }
 
-export default function TileCell({ tile, teams, isCurrent, style }: Props) {
-  const colors = getTileColors(tile.tile_type)
+const BORDER = "1px solid #1a1a2a";
+const BODY_BG = "#FFFFFF";
+
+export default function TileCell({
+  tile,
+  teams,
+  isCurrent,
+  side = "bottom",
+  tileSize = 80,
+  style,
+}: Props) {
+  const colors = getTileColors(tile.tile_type);
+  const fontSize = Math.max(7, Math.round(tileSize * 0.115));
+  const currentOutline = isCurrent
+    ? { outline: "2.5px solid #F59E0B", outlineOffset: "-2px", zIndex: 10 }
+    : {};
+
+  // ── Corner tiles ──────────────────────────────────────────────────────────
+  if (side === "corner") {
+    const icon = CORNER_ICONS[tile.tile_type] ?? "⭐";
+    return (
+      <div
+        style={{
+          ...style,
+          backgroundColor: colors.stripeColor,
+          border: BORDER,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 2,
+          overflow: "hidden",
+          position: "relative",
+          ...currentOutline,
+        }}
+      >
+        <span style={{ fontSize: tileSize * 0.32, lineHeight: 1 }}>{icon}</span>
+        <span
+          style={{
+            fontWeight: 800,
+            fontSize: tileSize * 0.13,
+            color: "#ffffff",
+            textAlign: "center",
+            textTransform: "uppercase",
+            lineHeight: 1.2,
+            letterSpacing: "0.02em",
+            padding: "0 4px",
+          }}
+        >
+          {tile.label}
+        </span>
+        {teams.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 1,
+            }}
+          >
+            {teams.map((team, i) => (
+              <div key={team.id} style={{ marginLeft: i > 0 ? -5 : 0 }}>
+                <TeamToken team={team} size="sm" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Stripe dimensions based on which edge faces the center ─────────────────
+  const stripeThickness = Math.round(tileSize * 0.28);
+
+  const isHorizontalStripe = side === "bottom" || side === "top";
+  const stripeIsFirst = side === "bottom" || side === "right";
+
+  const stripeStyle: React.CSSProperties = isHorizontalStripe
+    ? { width: "100%", height: stripeThickness, flexShrink: 0 }
+    : { height: "100%", width: stripeThickness, flexShrink: 0 };
+
+  const flexDirection: React.CSSProperties["flexDirection"] = isHorizontalStripe
+    ? stripeIsFirst
+      ? "column"
+      : "column-reverse"
+    : stripeIsFirst
+      ? "row"
+      : "row-reverse";
 
   return (
     <div
-      className={`
-        ${colors.bg} ${colors.text} ${colors.border}
-        border-2 rounded flex flex-col items-center justify-between
-        p-1 overflow-hidden relative
-        ${isCurrent ? 'ring-2 ring-white ring-offset-1' : ''}
-      `}
-      style={style}
+      style={{
+        ...style,
+        backgroundColor: BODY_BG,
+        border: BORDER,
+        borderRadius: 0,
+        display: "flex",
+        flexDirection,
+        overflow: "hidden",
+        position: "relative",
+        ...currentOutline,
+      }}
     >
-      {tile.image_url && (
-        <img
-          src={tile.image_url}
-          alt={tile.label}
-          className="w-full h-10 object-cover rounded mb-1"
-        />
-      )}
-      <span className="text-center text-xs font-semibold leading-tight line-clamp-2 flex-1">
-        {tile.label}
-      </span>
-      {teams.length > 0 && (
-        <div className="flex flex-wrap gap-0.5 justify-center mt-1">
-          {teams.map(team => (
-            <TeamToken key={team.id} team={team} size="sm" />
-          ))}
-        </div>
-      )}
+      {/* Colored stripe on inner edge */}
+      <div
+        style={{ ...stripeStyle, backgroundColor: colors.stripeColor }}
+      />
+
+      {/* Tile body */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "2px 2px",
+          minWidth: 0,
+          minHeight: 0,
+          gap: 1,
+        }}
+      >
+        <span
+          style={{
+            fontSize,
+            fontWeight: 700,
+            color: "#1a1a2a",
+            textAlign: "center",
+            lineHeight: 1.25,
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            wordBreak: "break-word",
+          }}
+        >
+          {tile.label}
+        </span>
+
+        {teams.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              marginTop: 1,
+            }}
+          >
+            {teams.map((team, i) => (
+              <div key={team.id} style={{ marginLeft: i > 0 ? -5 : 0 }}>
+                <TeamToken team={team} size="sm" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
