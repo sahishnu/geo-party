@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import Board from "../components/Board";
 import PlayerCard from "../components/PlayerCard";
 import EventLogFeed from "../components/EventLogFeed";
@@ -6,6 +7,8 @@ import { useGameConfig } from "../hooks/useGameConfig";
 import { useTeams } from "../hooks/useTeams";
 import { useTiles } from "../hooks/useTiles";
 import { useEvents } from "../hooks/useEvents";
+import { useMoveAnimation } from "../hooks/useMoveAnimation";
+import { getCameraTransform } from "../utils/cameraTransform";
 import { supabase } from "../lib/supabase";
 import type { Team } from "../types/database";
 
@@ -41,6 +44,17 @@ export default function BoardView() {
 
   const sortedTeams = [...teams].sort((a, b) => a.turn_order - b.turn_order);
   const teamMap = new Map<string, Team>(teams.map((t) => [t.id, t]));
+
+  const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
+
+  const n = config.tiles_per_side;
+  const tileSize = Math.min(
+    Math.floor((window.innerWidth * 0.95) / n),
+    Math.floor((window.innerHeight * 0.72) / n),
+    120
+  );
+  const boardPx = n * tileSize;
+  const camera = getCameraTransform(isAnimating ? currentPosition : null, n, tileSize, boardPx);
 
   return (
     <div
@@ -99,7 +113,19 @@ export default function BoardView() {
         {/* Board area */}
         <div className="flex-1 flex items-center justify-center overflow-hidden">
           {tiles.length > 0 ? (
-            <Board tiles={tiles} teams={teams} config={config} />
+            <motion.div
+              animate={{ x: camera.x, y: camera.y, scale: camera.scale }}
+              transition={{ type: "spring", stiffness: 150, damping: 35 }}
+            >
+              <Board
+                tiles={tiles}
+                teams={teams}
+                config={config}
+                animatingTeamId={animatingTeam?.id}
+                animatingTeam={animatingTeam ?? undefined}
+                animationPosition={currentPosition}
+              />
+            </motion.div>
           ) : (
             <div className="text-center text-gray-400">
               <p className="text-5xl mb-4">🗺️</p>
