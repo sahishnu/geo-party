@@ -99,7 +99,7 @@ describe('computeMovePath', () => {
   })
 
   it('wraps around the board', () => {
-    const total = getTileCount(10) // 36
+    expect(getTileCount(10)).toBe(36) // confirms total before testing wrap
     expect(computeMovePath(34, 2, 10)).toEqual([34, 35, 0, 1, 2])
   })
 
