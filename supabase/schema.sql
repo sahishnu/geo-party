@@ -30,6 +30,7 @@ create table teams (
 create table game_config (
   id uuid primary key default gen_random_uuid(),
   game_name text not null default 'Geo Party',
+  game_description text not null default '',
   tiles_per_side integer not null default 9,
   jail_penalty integer not null default 50,
   tax_penalty integer not null default 30,

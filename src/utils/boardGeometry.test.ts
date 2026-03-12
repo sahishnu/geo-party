@@ -16,40 +16,40 @@ describe('getTileCount', () => {
 })
 
 describe('getTileCoordinates', () => {
-  it('position 0 is bottom-left corner (col=0, row=8) for tilesPerSide=9', () => {
+  it('position 0 is top-left corner (col=0, row=0) for tilesPerSide=9', () => {
     const { col, row } = getTileCoordinates(0, 9)
     expect(col).toBe(0)
-    expect(row).toBe(8)
+    expect(row).toBe(0)
   })
 
-  it('position 1 is one step right on bottom row', () => {
+  it('position 1 is one step right on top row', () => {
     const { col, row } = getTileCoordinates(1, 9)
     expect(col).toBe(1)
-    expect(row).toBe(8)
+    expect(row).toBe(0)
   })
 
-  it('position 8 is bottom-right corner (col=8, row=8) for tilesPerSide=9', () => {
+  it('position 8 is top-right corner (col=8, row=0) for tilesPerSide=9', () => {
     const { col, row } = getTileCoordinates(8, 9)
     expect(col).toBe(8)
+    expect(row).toBe(0)
+  })
+
+  it('position 9 is one step down on right side (col=8, row=1)', () => {
+    const { col, row } = getTileCoordinates(9, 9)
+    expect(col).toBe(8)
+    expect(row).toBe(1)
+  })
+
+  it('position 16 is bottom-right corner (col=8, row=8) for tilesPerSide=9', () => {
+    const { col, row } = getTileCoordinates(16, 9)
+    expect(col).toBe(8)
     expect(row).toBe(8)
   })
 
-  it('position 9 is one step up on right side (col=8, row=7)', () => {
-    const { col, row } = getTileCoordinates(9, 9)
-    expect(col).toBe(8)
-    expect(row).toBe(7)
-  })
-
-  it('position 16 is top-right corner (col=8, row=0) for tilesPerSide=9', () => {
-    const { col, row } = getTileCoordinates(16, 9)
-    expect(col).toBe(8)
-    expect(row).toBe(0)
-  })
-
-  it('position 24 is top-left corner (col=0, row=0) for tilesPerSide=9', () => {
+  it('position 24 is bottom-left corner (col=0, row=8) for tilesPerSide=9', () => {
     const { col, row } = getTileCoordinates(24, 9)
     expect(col).toBe(0)
-    expect(row).toBe(0)
+    expect(row).toBe(8)
   })
 })
 

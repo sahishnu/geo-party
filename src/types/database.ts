@@ -10,6 +10,7 @@ export type DeckType = 'chance' | 'random'
 export interface GameConfig {
   id: string
   game_name: string
+  game_description: string
   tiles_per_side: number
   jail_penalty: number
   tax_penalty: number

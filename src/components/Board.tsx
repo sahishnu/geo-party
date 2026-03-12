@@ -185,7 +185,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
                 lineHeight: 1,
               }}
             >
-                MajaPoly
+                {config.game_name}
             </div>
 
             {/* Rule */}
@@ -209,7 +209,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
                 textTransform: 'uppercase',
               }}
             >
-                We Are One
+                {config.game_description || 'Board Game'}
               </div>
             </div>
           </div>

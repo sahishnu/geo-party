@@ -20,7 +20,7 @@ describe('database types', () => {
 
   it('GameConfig type has required fields', () => {
     const config: GameConfig = {
-      id: '1', game_name: 'Geo Party', tiles_per_side: 9,
+      id: '1', game_name: 'Geo Party', game_description: '', tiles_per_side: 9,
       jail_penalty: 50, tax_penalty: 30, pot_total: 0, current_team_id: null
     }
     expect(config.pot_total).toBe(0)

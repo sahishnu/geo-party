@@ -5,6 +5,7 @@ import type { GameConfig, TileType, DeckType, GameMode } from '../../types/datab
 interface GameSeed {
   settings?: {
     game_name?: string
+    game_description?: string
     tiles_per_side?: number
     jail_penalty?: number
     tax_penalty?: number
@@ -79,6 +80,7 @@ async function importSeed(seed: GameSeed, configId: string) {
   if (seed.settings) {
     const update: Record<string, unknown> = {}
     if (seed.settings.game_name !== undefined) update.game_name = seed.settings.game_name
+    if (seed.settings.game_description !== undefined) update.game_description = seed.settings.game_description
     if (seed.settings.tiles_per_side !== undefined) update.tiles_per_side = seed.settings.tiles_per_side
     if (seed.settings.jail_penalty !== undefined) update.jail_penalty = seed.settings.jail_penalty
     if (seed.settings.tax_penalty !== undefined) update.tax_penalty = seed.settings.tax_penalty
@@ -122,6 +124,7 @@ async function importSeed(seed: GameSeed, configId: string) {
 const EXAMPLE_SEED: GameSeed = {
   settings: {
     game_name: 'My Game',
+    game_description: 'Adventure Awaits',
     tiles_per_side: 9,
     jail_penalty: 50,
     tax_penalty: 30,
@@ -144,6 +147,7 @@ const EXAMPLE_SEED: GameSeed = {
 
 export default function SettingsTab({ config }: { config: GameConfig }) {
   const [gameName, setGameName] = useState(config.game_name)
+  const [gameDescription, setGameDescription] = useState(config.game_description)
   const [jailPenalty, setJailPenalty] = useState(config.jail_penalty)
   const [taxPenalty, setTaxPenalty] = useState(config.tax_penalty)
   const [saved, setSaved] = useState(false)
@@ -157,6 +161,7 @@ export default function SettingsTab({ config }: { config: GameConfig }) {
   const save = async () => {
     await supabase.from('game_config').update({
       game_name: gameName,
+      game_description: gameDescription,
       jail_penalty: jailPenalty,
       tax_penalty: taxPenalty,
     }).eq('id', config.id)
@@ -213,6 +218,13 @@ export default function SettingsTab({ config }: { config: GameConfig }) {
         <label className="text-sm text-gray-400 block mb-1">Game Name</label>
         <input value={gameName} onChange={e => setGameName(e.target.value)}
           className="w-full bg-gray-700 text-white px-3 py-2 rounded" />
+      </div>
+
+      <div>
+        <label className="text-sm text-gray-400 block mb-1">Game Description</label>
+        <input value={gameDescription} onChange={e => setGameDescription(e.target.value)}
+          className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+          placeholder="Displayed below the game name on the board" />
       </div>
 
       <div>
