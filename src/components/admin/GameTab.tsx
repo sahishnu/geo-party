@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import type { Team, Tile, GameConfig } from '../../types/database'
-import { wrapPosition } from '../../utils/boardGeometry'
+import { wrapPosition, getTileCount } from '../../utils/boardGeometry'
 
 interface Props {
   teams: Team[]
@@ -13,6 +13,9 @@ export default function GameTab({ teams, tiles, config }: Props) {
   const [moveInputs, setMoveInputs] = useState<Record<string, string>>({})
   const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({})
   const [scoreNotes, setScoreNotes] = useState<Record<string, string>>({})
+  const [overridePanelOpen, setOverridePanelOpen] = useState<Record<string, boolean>>({})
+  const [overrideScoreInputs, setOverrideScoreInputs] = useState<Record<string, string>>({})
+  const [overridePositionInputs, setOverridePositionInputs] = useState<Record<string, string>>({})
 
   const tileMap = new Map(tiles.map(t => [t.position, t]))
 
@@ -99,6 +102,21 @@ export default function GameTab({ teams, tiles, config }: Props) {
     await supabase.from('game_config').update({ current_team_id: teamId }).eq('id', config.id)
   }
 
+  const overrideScore = async (team: Team) => {
+    const val = parseInt(overrideScoreInputs[team.id] ?? '')
+    if (isNaN(val)) return
+    await supabase.from('teams').update({ score: val }).eq('id', team.id)
+    setOverrideScoreInputs(prev => ({ ...prev, [team.id]: '' }))
+  }
+
+  const overridePosition = async (team: Team) => {
+    const val = parseInt(overridePositionInputs[team.id] ?? '')
+    const totalTiles = getTileCount(config.tiles_per_side)
+    if (isNaN(val) || val < 0 || val >= totalTiles) return
+    await supabase.from('teams').update({ position: val }).eq('id', team.id)
+    setOverridePositionInputs(prev => ({ ...prev, [team.id]: '' }))
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -134,6 +152,17 @@ export default function GameTab({ teams, tiles, config }: Props) {
                     : 'border-gray-500 text-gray-400 hover:border-yellow-400 hover:text-yellow-400'
                   }`}>
                   {isCurrentTurn ? 'Current Turn' : 'Set Turn'}
+                </button>
+                <button
+                  onClick={() => setOverridePanelOpen(prev => ({ ...prev, [team.id]: !prev[team.id] }))}
+                  title="Admin override (not logged)"
+                  className={`text-xs px-2 py-1 rounded border ${
+                    overridePanelOpen[team.id]
+                      ? 'bg-amber-700 text-amber-100 border-amber-500'
+                      : 'border-gray-600 text-gray-500 hover:border-amber-500 hover:text-amber-400'
+                  }`}
+                >
+                  🔧
                 </button>
               </div>
 
@@ -177,6 +206,56 @@ export default function GameTab({ teams, tiles, config }: Props) {
                     className="mt-1 w-full bg-gray-700 text-white px-2 py-1 rounded text-xs" />
                 </div>
               </div>
+
+              {overridePanelOpen[team.id] && (
+                <div className="mt-3 border border-dashed border-amber-800 rounded-lg p-3 bg-gray-900">
+                  <div className="text-xs text-amber-600 font-semibold mb-2 uppercase tracking-wider">
+                    Admin Override — not logged
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">Set score to</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={overrideScoreInputs[team.id] ?? ''}
+                          onChange={e => setOverrideScoreInputs(prev => ({ ...prev, [team.id]: e.target.value }))}
+                          placeholder="Absolute score"
+                          className="flex-1 bg-gray-800 text-gray-300 px-2 py-1.5 rounded text-sm border border-gray-700"
+                        />
+                        <button
+                          onClick={() => overrideScore(team)}
+                          className="bg-amber-800 hover:bg-amber-700 text-amber-100 px-3 py-1.5 rounded text-sm"
+                        >
+                          Set
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">
+                        Set position to (0–{getTileCount(config.tiles_per_side) - 1})
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={getTileCount(config.tiles_per_side) - 1}
+                          value={overridePositionInputs[team.id] ?? ''}
+                          onChange={e => setOverridePositionInputs(prev => ({ ...prev, [team.id]: e.target.value }))}
+                          placeholder="Tile index"
+                          className="flex-1 bg-gray-800 text-gray-300 px-2 py-1.5 rounded text-sm border border-gray-700"
+                        />
+                        <button
+                          onClick={() => overridePosition(team)}
+                          className="bg-amber-800 hover:bg-amber-700 text-amber-100 px-3 py-1.5 rounded text-sm"
+                        >
+                          Set
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )
         })}
