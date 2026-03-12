@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import type { Team, Tile, GameConfig } from '../../types/database'
 import { wrapPosition, getTileCount } from '../../utils/boardGeometry'
@@ -9,7 +9,16 @@ interface Props {
   config: GameConfig
 }
 
+const DICE_CHARS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']
+
 export default function GameTab({ teams, tiles, config }: Props) {
+  // Dice roller
+  const [diceDisplay, setDiceDisplay] = useState<[number, number]>([1, 1])
+  const [diceRolling, setDiceRolling] = useState(false)
+  const [diceResult, setDiceResult] = useState<[number, number] | null>(null)
+  const rollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Per-team manual move + score
   const [moveInputs, setMoveInputs] = useState<Record<string, string>>({})
   const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({})
   const [scoreNotes, setScoreNotes] = useState<Record<string, string>>({})
@@ -20,15 +29,43 @@ export default function GameTab({ teams, tiles, config }: Props) {
   const [pendingTax, setPendingTax] = useState<{ team: Team; amount: number; reason: string } | null>(null)
 
   const tileMap = new Map(tiles.map(t => [t.position, t]))
+  const currentTeam = teams.find(t => t.id === config.current_team_id) ?? null
 
-  const moveTeam = async (team: Team) => {
-    const spaces = parseInt(moveInputs[team.id] ?? '0')
+  // Cleanup interval on unmount
+  useEffect(() => () => { if (rollIntervalRef.current) clearInterval(rollIntervalRef.current) }, [])
+
+  const rollDice = () => {
+    if (diceRolling) return
+    const d1 = Math.ceil(Math.random() * 6)
+    const d2 = Math.ceil(Math.random() * 6)
+    setDiceRolling(true)
+    setDiceResult(null)
+
+    let tick = 0
+    rollIntervalRef.current = setInterval(() => {
+      tick++
+      if (tick >= 14) {
+        clearInterval(rollIntervalRef.current!)
+        setDiceDisplay([d1, d2])
+        setDiceRolling(false)
+        setDiceResult([d1, d2])
+      } else {
+        setDiceDisplay([Math.ceil(Math.random() * 6), Math.ceil(Math.random() * 6)])
+      }
+    }, 90)
+  }
+
+  const moveTeam = async (team: Team, spaces: number) => {
     if (!spaces || spaces < 1) return
-
+    const totalTiles = getTileCount(config.tiles_per_side)
     const newPosition = wrapPosition(team.position + spaces, config.tiles_per_side)
     const landedTile = tileMap.get(newPosition)
+    const lapsGained = Math.floor((team.position + spaces) / totalTiles)
 
-    await supabase.from('teams').update({ position: newPosition }).eq('id', team.id)
+    await supabase
+      .from('teams')
+      .update({ position: newPosition, laps: team.laps + lapsGained })
+      .eq('id', team.id)
 
     await supabase.from('events').insert({
       event_type: 'move',
@@ -42,8 +79,14 @@ export default function GameTab({ teams, tiles, config }: Props) {
     if (landedTile) {
       await handleSpecialTile(team, landedTile)
     }
+  }
 
-    setMoveInputs(prev => ({ ...prev, [team.id]: '' }))
+  const moveDiceResult = async () => {
+    if (!currentTeam || !diceResult) return
+    const spaces = diceResult[0] + diceResult[1]
+    await moveTeam(currentTeam, spaces)
+    setDiceResult(null)
+    setDiceDisplay([1, 1])
   }
 
   const handleSpecialTile = async (team: Team, tile: Tile) => {
@@ -161,6 +204,66 @@ export default function GameTab({ teams, tiles, config }: Props) {
         </div>
       </div>
 
+      {/* ── Dice Roller ── */}
+      <div className="bg-gray-800 rounded-xl p-4 border border-gray-600">
+        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          🎲 Dice Roller
+          {currentTeam
+            ? <span className="ml-2 text-yellow-400">→ {currentTeam.icon} {currentTeam.name}</span>
+            : <span className="ml-2 text-gray-600">· set a current turn first</span>}
+        </div>
+        <div className="flex items-center gap-5">
+          {/* Dice faces */}
+          <div className="flex gap-3">
+            {([diceDisplay[0], diceDisplay[1]] as [number, number]).map((val, i) => (
+              <div
+                key={i}
+                className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shadow-lg select-none"
+                style={{
+                  fontSize: 38,
+                  transition: diceRolling ? 'none' : 'transform 0.2s',
+                  transform: diceRolling ? `rotate(${(Math.random() - 0.5) * 20}deg)` : 'none',
+                }}
+              >
+                {DICE_CHARS[val - 1]}
+              </div>
+            ))}
+          </div>
+
+          {/* Roll button */}
+          <button
+            onClick={rollDice}
+            disabled={diceRolling || !currentTeam}
+            className="bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-5 py-3 rounded-xl font-bold text-base transition-colors"
+          >
+            {diceRolling ? 'Rolling…' : '🎲 Roll'}
+          </button>
+
+          {/* Result */}
+          {diceResult && !diceRolling && (
+            <div className="flex items-center gap-3 animate-in fade-in duration-200">
+              <div className="text-2xl font-extrabold text-yellow-400 tabular-nums">
+                = {diceResult[0] + diceResult[1]}
+              </div>
+              <button
+                onClick={moveDiceResult}
+                disabled={!currentTeam}
+                className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold transition-colors"
+              >
+                Move {currentTeam?.icon}
+              </button>
+              <button
+                onClick={() => { setDiceResult(null); setDiceDisplay([1, 1]) }}
+                className="text-gray-500 hover:text-gray-300 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Pot award ── */}
       {config.pot_total > 0 && teams.length > 0 && (
         <div className="bg-purple-950 border border-purple-700 rounded-lg p-3">
           <div className="text-sm font-semibold text-purple-300 mb-2">Award Pot to Team(s)</div>
@@ -201,6 +304,7 @@ export default function GameTab({ teams, tiles, config }: Props) {
         <p className="text-gray-500 italic text-sm">No teams yet. Add teams in the Teams tab.</p>
       )}
 
+      {/* ── Per-team controls ── */}
       <div className="space-y-3">
         {teams.map(team => {
           const currentTile = tileMap.get(team.position)
@@ -214,6 +318,9 @@ export default function GameTab({ teams, tiles, config }: Props) {
                   <div className="font-bold">{team.name}</div>
                   <div className="text-sm text-gray-400">
                     {team.score} pts · Tile {team.position}{currentTile ? `: ${currentTile.label}` : ''}
+                    {team.laps > 0 && (
+                      <span className="ml-2 text-blue-400">· 🔁 {team.laps} {team.laps === 1 ? 'lap' : 'laps'}</span>
+                    )}
                   </div>
                 </div>
                 <button onClick={() => setCurrentTurn(team.id)}
@@ -238,14 +345,19 @@ export default function GameTab({ teams, tiles, config }: Props) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">Dice Roll → Move</label>
+                  <label className="text-xs text-gray-400 block mb-1">Manual Move</label>
                   <div className="flex gap-2">
                     <input type="number" min={1} max={12}
                       value={moveInputs[team.id] ?? ''}
                       onChange={e => setMoveInputs(prev => ({ ...prev, [team.id]: e.target.value }))}
                       placeholder="Spaces"
                       className="flex-1 bg-gray-700 text-white px-2 py-1.5 rounded text-sm" />
-                    <button onClick={() => moveTeam(team)}
+                    <button onClick={() => {
+                      const spaces = parseInt(moveInputs[team.id] ?? '0')
+                      moveTeam(team, spaces).then(() =>
+                        setMoveInputs(prev => ({ ...prev, [team.id]: '' }))
+                      )
+                    }}
                       className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-sm font-semibold">
                       Move
                     </button>

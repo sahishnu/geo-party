@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
 import Board from "../components/Board";
 import PlayerCard from "../components/PlayerCard";
 import EventLogFeed from "../components/EventLogFeed";
@@ -11,6 +12,13 @@ import { useMoveAnimation } from "../hooks/useMoveAnimation";
 import { getCameraTransform } from "../utils/cameraTransform";
 import { supabase } from "../lib/supabase";
 import type { Team } from "../types/database";
+
+type ActiveActivity = {
+  title: string;
+  color: string;
+  game_mode: string;
+  duration?: number | null;
+};
 
 function FlipCard({
   backLabel,
@@ -35,8 +43,6 @@ function FlipCard({
   //   const timer = setTimeout(() => setFlipped(true), 1200);
   //   return () => clearTimeout(timer);
   // }, []);
-
-  const lightBg = bgColor + "CC";
 
   return (
     <div
@@ -152,17 +158,21 @@ export default function BoardView() {
   const { tiles } = useTiles();
   const { events } = useEvents(50);
   const [connected, setConnected] = useState(true);
-  const [activeActivity, setActiveActivity] = useState<{ title: string; color: string; game_mode: string } | null>(null);
+  const [activeActivity, setActiveActivity] = useState<ActiveActivity | null>(null);
   const [revealedCard, setRevealedCard] = useState<string | null>(null);
+  const [leaderboardMode, setLeaderboardMode] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
+
+  // Confetti: track which event IDs we've already processed
+  const seenEventIdsRef = useRef(new Set<string>());
+  const confettiInitialized = useRef(false);
 
   useEffect(() => {
     const channel = supabase.channel("connection_check").subscribe((status) => {
       setConnected(status === "SUBSCRIBED");
     });
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   useEffect(() => {
@@ -170,9 +180,9 @@ export default function BoardView() {
       .channel('activity_display')
       .on('broadcast', { event: 'show_activity' }, ({ payload }) => {
         setActiveActivity(payload);
+        setTimeLeft(payload.duration ?? null);
       })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, []);
 
@@ -183,16 +193,50 @@ export default function BoardView() {
         setRevealedCard(payload.content);
       })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  // Confetti on pot_claim events
+  useEffect(() => {
+    if (!confettiInitialized.current) {
+      if (events.length > 0) {
+        events.forEach(e => seenEventIdsRef.current.add(e.id));
+        confettiInitialized.current = true;
+      }
+      return;
+    }
+    for (const event of events) {
+      if (!seenEventIdsRef.current.has(event.id)) {
+        seenEventIdsRef.current.add(event.id);
+        if (event.event_type === 'pot_claim') {
+          confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 }, startVelocity: 45 });
+          setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { x: 0.1, y: 0.6 } }), 300);
+          setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { x: 0.9, y: 0.6 } }), 500);
+        }
+      }
+    }
+  }, [events]);
+
+  // Activity countdown tick
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0) return;
+    const t = setTimeout(() => setTimeLeft(prev => (prev !== null ? prev - 1 : null)), 1000);
+    return () => clearTimeout(t);
+  }, [timeLeft]);
+
+  // Auto-close activity 2s after timer hits 0
+  useEffect(() => {
+    if (timeLeft !== 0) return;
+    const t = setTimeout(() => {
+      setActiveActivity(null);
+      setTimeLeft(null);
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [timeLeft]);
+
   if (configLoading || !config) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "#FAFAF8" }}
-      >
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#FAFAF8" }}>
         <div className="text-center">
           <div className="text-4xl mb-3 animate-bounce">🎲</div>
           <p className="text-gray-500 font-semibold">Loading game...</p>
@@ -201,8 +245,11 @@ export default function BoardView() {
     );
   }
 
-  const sortedTeams = [...teams].sort((a, b) => a.turn_order - b.turn_order);
+  const sortedByTurnOrder = [...teams].sort((a, b) => a.turn_order - b.turn_order);
+  const sortedByScore = [...teams].sort((a, b) => b.score - a.score);
+  const displayTeams = leaderboardMode ? sortedByScore : sortedByTurnOrder;
   const teamMap = new Map<string, Team>(teams.map((t) => [t.id, t]));
+  const scoreRankMap = new Map<string, number>(sortedByScore.map((t, i) => [t.id, i + 1]));
 
   const n = config.tiles_per_side;
   const tileSize = Math.min(
@@ -212,6 +259,12 @@ export default function BoardView() {
   );
   const boardPx = n * tileSize;
   const camera = getCameraTransform(isAnimating ? currentPosition : null, n, tileSize, boardPx);
+
+  const activityDuration = activeActivity?.duration ?? null;
+  const timerPercent = activityDuration && timeLeft !== null
+    ? Math.max(0, timeLeft / activityDuration)
+    : null;
+  const isTimeUp = timeLeft === 0;
 
   return (
     <div
@@ -231,11 +284,12 @@ export default function BoardView() {
 
       {/* ── Player Card Strip ── */}
       <div className="flex items-center gap-3 px-5 pt-4 pb-3 flex-wrap shrink-0">
-        {sortedTeams.map((team) => (
+        {displayTeams.map((team) => (
           <PlayerCard
             key={team.id}
             team={team}
             isCurrentTurn={team.id === config.current_team_id}
+            rank={leaderboardMode ? scoreRankMap.get(team.id) : undefined}
           />
         ))}
 
@@ -261,6 +315,18 @@ export default function BoardView() {
             </div>
           </div>
         </div>
+
+        {/* Leaderboard toggle */}
+        <button
+          onClick={() => setLeaderboardMode(m => !m)}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm shadow-sm border transition-colors ${
+            leaderboardMode
+              ? 'bg-amber-400 text-amber-900 border-amber-500'
+              : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
+          }`}
+        >
+          🏆 {leaderboardMode ? 'Leaderboard' : 'Standings'}
+        </button>
       </div>
 
       {/* ── Board + Event Log ── */}
@@ -285,19 +351,18 @@ export default function BoardView() {
             <div className="text-center text-gray-400">
               <p className="text-5xl mb-4">🗺️</p>
               <p className="text-lg font-bold text-gray-500">No board yet</p>
-              <p className="text-sm mt-1">
-                Go to Admin → Board tab to set up the board.
-              </p>
+              <p className="text-sm mt-1">Go to Admin → Board tab to set up the board.</p>
             </div>
           )}
         </div>
 
         {/* Event Log feed */}
-        <div className="w-72 shrink-0 bg-white/70 backdrop-blur-sm rounded-2xl mb-4  px-4 py-4 shadow-sm overflow-hidden flex flex-col">
+        <div className="w-72 shrink-0 bg-white/70 backdrop-blur-sm rounded-2xl mb-4 px-4 py-4 shadow-sm overflow-hidden flex flex-col">
           <EventLogFeed events={events} teamMap={teamMap} />
         </div>
       </div>
 
+      {/* ── Card overlay ── */}
       {revealedCard && (
         <FlipCard
           backLabel="❓"
@@ -310,6 +375,7 @@ export default function BoardView() {
         />
       )}
 
+      {/* ── Activity overlay ── */}
       {activeActivity && (
         <FlipCard
           backLabel="⚡"
@@ -318,8 +384,34 @@ export default function BoardView() {
           borderColor={activeActivity.color + 'AA'}
           frontLabel={activeActivity.title}
           frontSubtitle={activeActivity.game_mode.replace(/_/g, ' ')}
-          onDismiss={() => setActiveActivity(null)}
+          onDismiss={() => { setActiveActivity(null); setTimeLeft(null); }}
         />
+      )}
+
+      {/* ── Activity countdown timer (floats above FlipCard) ── */}
+      {activeActivity && activityDuration && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] pointer-events-none">
+          <div
+            className="rounded-2xl px-8 py-4 text-center shadow-2xl min-w-48"
+            style={{ backgroundColor: activeActivity.color + 'EE', border: `3px solid ${activeActivity.color}` }}
+          >
+            {isTimeUp ? (
+              <div className="text-3xl font-extrabold text-white animate-pulse">TIME'S UP!</div>
+            ) : (
+              <>
+                <div className="text-5xl font-extrabold text-white tabular-nums leading-none mb-2">
+                  {timeLeft}
+                </div>
+                <div className="h-2.5 rounded-full bg-black/30 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-white/80 transition-all duration-1000 ease-linear"
+                    style={{ width: `${(timerPercent ?? 1) * 100}%` }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

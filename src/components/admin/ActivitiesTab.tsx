@@ -10,6 +10,14 @@ const GAME_MODES: { value: GameMode; label: string }[] = [
   { value: 'team_relay', label: 'Team Relay' },
 ]
 
+const TIMER_OPTIONS: { value: number | null; label: string }[] = [
+  { value: null, label: 'No timer' },
+  { value: 30, label: '30s' },
+  { value: 60, label: '60s' },
+  { value: 90, label: '90s' },
+  { value: 120, label: '2m' },
+]
+
 const getModeColor = (mode: GameMode) => {
   if (mode === 'team_relay') return getTileColors('misc').stripeColor
   return getTileColors(mode).stripeColor
@@ -18,6 +26,7 @@ const getModeColor = (mode: GameMode) => {
 export default function ActivitiesTab({ activities }: { activities: Activity[] }) {
   const [title, setTitle] = useState('')
   const [gameMode, setGameMode] = useState<GameMode>('solo')
+  const [timerDuration, setTimerDuration] = useState<number | null>(null)
   const [pendingActivity, setPendingActivity] = useState<Activity | null>(null)
   const [pendingMode, setPendingMode] = useState<GameMode | null>(null)
 
@@ -39,7 +48,12 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
     await supabase.channel('activity_display').send({
       type: 'broadcast',
       event: 'show_activity',
-      payload: { title: activity.title, color, game_mode: activity.game_mode },
+      payload: {
+        title: activity.title,
+        color,
+        game_mode: activity.game_mode,
+        duration: timerDuration,
+      },
     })
     setPendingActivity(null)
     setPendingMode(null)
@@ -56,6 +70,28 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Activities</h2>
+
+      {/* Timer selector */}
+      <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          ⏱ Activity Timer
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {TIMER_OPTIONS.map(opt => (
+            <button
+              key={String(opt.value)}
+              onClick={() => setTimerDuration(opt.value)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${
+                timerDuration === opt.value
+                  ? 'bg-blue-600 border-blue-400 text-white'
+                  : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-blue-500 hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Add form */}
       <div className="bg-gray-800 rounded-xl p-4 border border-gray-600 space-y-3">
@@ -115,6 +151,9 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
                 onClick={() => broadcastActivity(activity)}
               >
                 <span className="text-sm font-semibold text-white">{activity.title}</span>
+                {timerDuration && (
+                  <span className="text-xs text-white/50 ml-1">⏱ {timerDuration}s</span>
+                )}
                 <button
                   onClick={e => { e.stopPropagation(); deleteActivity(activity.id) }}
                   className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
@@ -144,9 +183,13 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
             >
               Random {GAME_MODES.find(m => m.value === pendingMode)?.label} Activity
             </div>
-            <div className="text-2xl font-bold text-white mb-6">
+            <div className="text-2xl font-bold text-white mb-2">
               {pendingActivity.title}
             </div>
+            {timerDuration && (
+              <div className="text-sm text-gray-400 mb-6">⏱ {timerDuration}s timer</div>
+            )}
+            {!timerDuration && <div className="mb-6" />}
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => rollRandom(pendingMode)}

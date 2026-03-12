@@ -25,6 +25,7 @@ export interface Team {
   score: number
   position: number
   turn_order: number
+  laps: number
   created_at: string
 }
 

@@ -23,6 +23,7 @@ create table teams (
   score integer not null default 0,
   position integer not null default 0,
   turn_order integer not null default 0,
+  laps integer not null default 0,
   created_at timestamptz not null default now()
 );
 
