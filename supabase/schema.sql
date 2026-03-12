@@ -69,6 +69,14 @@ create table cards (
   created_at timestamptz not null default now()
 );
 
+-- activities (game activities/mini-games organized by category)
+create table activities (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  game_mode text not null default 'solo',
+  created_at timestamptz not null default now()
+);
+
 -- Insert the single game_config row
 insert into game_config (game_name) values ('Geo Party');
 
@@ -80,6 +88,7 @@ alter table teams disable row level security;
 alter table tiles disable row level security;
 alter table events disable row level security;
 alter table cards disable row level security;
+alter table activities disable row level security;
 
 -- ============================================================
 -- Enable real-time for all tables
@@ -91,3 +100,4 @@ alter publication supabase_realtime add table teams;
 alter publication supabase_realtime add table tiles;
 alter publication supabase_realtime add table events;
 alter publication supabase_realtime add table cards;
+alter publication supabase_realtime add table activities;

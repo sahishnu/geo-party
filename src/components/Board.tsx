@@ -185,7 +185,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
                 lineHeight: 1,
               }}
             >
-                JeoParty
+                MajaPoly
             </div>
 
             {/* Rule */}

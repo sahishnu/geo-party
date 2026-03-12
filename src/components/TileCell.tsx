@@ -6,8 +6,8 @@ import TeamToken from "./TeamToken";
 const CORNER_ICONS: Partial<Record<string, string>> = {
   start: "🚀",
   jail: "🚔",
-  pot: "🪙",
-  pay_taxes: "💸",
+  pot: "💰",
+  pay_taxes: "🏚️",
 };
 
 interface Props {
@@ -45,34 +45,48 @@ export default function TileCell({
           ...style,
           backgroundColor: colors.stripeColor,
           border: BORDER,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 2,
           overflow: "hidden",
           position: "relative",
           ...currentOutline,
         }}
       >
-        <span style={{ fontSize: tileSize * 0.32, lineHeight: 1 }}>{icon}</span>
-        <span
+        {/* Icon + label — absolutely centered, never displaced by tokens */}
+        <div
           style={{
-            fontWeight: 800,
-            fontSize: tileSize * 0.13,
-            color: "#ffffff",
-            textAlign: "center",
-            textTransform: "uppercase",
-            lineHeight: 1.2,
-            letterSpacing: "0.02em",
-            padding: "0 4px",
+            position: "absolute",
+            inset: "50%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
           }}
         >
-          {tile.label}
-        </span>
+          <span style={{ fontSize: tileSize * 0.32, lineHeight: 1 }}>{icon}</span>
+          <span
+            style={{
+              fontWeight: 800,
+              fontSize: tileSize * 0.13,
+              color: "#ffffff",
+              textAlign: "center",
+              textTransform: "uppercase",
+              lineHeight: 1.2,
+              letterSpacing: "0.02em",
+              padding: "0 4px",
+            }}
+          >
+            {tile.label}
+          </span>
+        </div>
+
+        {/* Tokens — pinned to bottom */}
         {teams.length > 0 && (
           <div
             style={{
+              position: "absolute",
+              bottom: 2,
+              left: 0,
+              right: 0,
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "center",

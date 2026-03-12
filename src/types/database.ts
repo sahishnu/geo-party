@@ -55,3 +55,12 @@ export interface Card {
   content: string
   created_at: string
 }
+
+export type GameMode = 'solo' | 'head_to_head' | 'all_teams' | 'team_relay'
+
+export interface Activity {
+  id: string
+  title: string
+  game_mode: GameMode
+  created_at: string
+}

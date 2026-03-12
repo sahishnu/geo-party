@@ -13,9 +13,9 @@ export default function PlayerCard({ team, isCurrentTurn }: Props) {
 
   return (
     <div
-      className="relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-transform duration-300"
+      className="border border-gray-300 relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-transform duration-300"
       style={{
-        border: `1px solid ${color}`,
+        // border: `1px solid gray-600`,
         boxShadow: isCurrentTurn
           ? `0 0 0 2px ${color}, 0 4px 16px ${colorLight}`
           : "0 2px 8px rgba(0,0,0,0.08)",
@@ -25,7 +25,7 @@ export default function PlayerCard({ team, isCurrentTurn }: Props) {
       {/* Active turn badge */}
       {isCurrentTurn && (
         <span
-          className="absolute -top-2.5 left-4 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm animate-bounce"
+          className="absolute -bottom-3 left-5 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
           style={{ backgroundColor: color }}
         >
           PLAYING

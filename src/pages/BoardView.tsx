@@ -16,8 +16,10 @@ export default function BoardView() {
   const { config, loading: configLoading } = useGameConfig();
   const { teams } = useTeams();
   const { tiles } = useTiles();
-  const { events } = useEvents(10);
+  const { events } = useEvents(50);
   const [connected, setConnected] = useState(true);
+  const [activeActivity, setActiveActivity] = useState<{ title: string; color: string; game_mode: string } | null>(null);
+  const [revealedCard, setRevealedCard] = useState<string | null>(null);
   const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
 
   useEffect(() => {
@@ -27,6 +29,28 @@ export default function BoardView() {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('activity_display')
+      .on('broadcast', { event: 'show_activity' }, ({ payload }) => {
+        setActiveActivity(payload);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('card_display')
+      .on('broadcast', { event: 'show_card' }, ({ payload }) => {
+        setRevealedCard(payload.content);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   if (configLoading || !config) {
@@ -108,7 +132,7 @@ export default function BoardView() {
       </div>
 
       {/* ── Board + Event Log ── */}
-      <div className="flex flex-1 gap-4 px-5 pb-4 overflow-hidden min-h-0">
+      <div className="flex flex-1 gap-4 px-5 overflow-hidden min-h-0">
         {/* Board area */}
         <div className="flex-1 flex items-center justify-center overflow-hidden">
           {tiles.length > 0 ? (
@@ -137,10 +161,50 @@ export default function BoardView() {
         </div>
 
         {/* Event Log feed */}
-        <div className="w-72 shrink-0 bg-white/70 backdrop-blur-sm rounded-2xl px-4 py-4 shadow-sm overflow-hidden flex flex-col">
+        <div className="w-72 shrink-0 bg-white/70 backdrop-blur-sm rounded-2xl mb-4  px-4 py-4 shadow-sm overflow-hidden flex flex-col">
           <EventLogFeed events={events} teamMap={teamMap} />
         </div>
       </div>
+
+      {revealedCard && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setRevealedCard(null)}
+        >
+          <div className="max-w-lg w-full mx-4 rounded-2xl p-10 text-center border-4 shadow-2xl bg-indigo-700 border-indigo-400">
+            <div className="text-sm uppercase tracking-widest mb-4 opacity-75 text-white">
+              Chance Card
+            </div>
+            <div className="text-3xl font-bold leading-snug text-white">
+              {revealedCard}
+            </div>
+            <div className="mt-8 text-sm opacity-60 text-white">Click anywhere to dismiss</div>
+          </div>
+        </div>
+      )}
+
+      {activeActivity && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setActiveActivity(null)}
+        >
+          <div
+            className="max-w-lg w-full mx-4 rounded-2xl p-10 text-center border-4 shadow-2xl"
+            style={{
+              backgroundColor: activeActivity.color,
+              borderColor: activeActivity.color + 'AA',
+            }}
+          >
+            <div className="text-sm uppercase tracking-widest mb-4 opacity-75 text-white">
+              {activeActivity.game_mode.replace(/_/g, ' ')}
+            </div>
+            <div className="text-4xl font-bold leading-snug text-white">
+              {activeActivity.title}
+            </div>
+            <div className="mt-8 text-sm opacity-60 text-white">Click anywhere to dismiss</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

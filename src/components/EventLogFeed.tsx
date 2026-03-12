@@ -39,13 +39,13 @@ export default function EventLogFeed({ events, teamMap }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-3 px-1">
-        <span className="text-gray-400 text-base">🕑</span>
+      <div className="flex items-center gap-2 mb-3 px-1 border-b border-gray-200 pb-2">
+        {/* <span className="text-gray-400 text-base">⭐</span> */}
         <h2 className="font-bold text-gray-700 text-base">Game Log</h2>
       </div>
 
       {/* Feed */}
-      <div className="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
+      <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-16rem)] pr-1">
         {events.length === 0 && (
           <p className="text-gray-400 text-sm italic px-1">No events yet</p>
         )}
@@ -62,7 +62,7 @@ export default function EventLogFeed({ events, teamMap }: Props) {
             >
               {/* Avatar pip */}
               <span
-                className="w-7 h-7 flex items-center justify-center rounded-full text-sm shrink-0 border-2 border-white shadow-sm mt-0.5"
+                className="w-7 h-7 flex items-center justify-center rounded-full text-sm shrink-0 border-2 border-white shadow-md   mt-0.5"
                 style={{ backgroundColor: color }}
               >
                 {team?.icon ?? "🎲"}

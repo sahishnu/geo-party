@@ -4,20 +4,23 @@ import { useTeams } from '../hooks/useTeams'
 import { useTiles } from '../hooks/useTiles'
 import { useEvents } from '../hooks/useEvents'
 import { useCards } from '../hooks/useCards'
+import { useActivities } from '../hooks/useActivities'
 import GameTab from '../components/admin/GameTab'
 import TeamsTab from '../components/admin/TeamsTab'
 import BoardTab from '../components/admin/BoardTab'
 import CardDecksTab from '../components/admin/CardDecksTab'
+import ActivitiesTab from '../components/admin/ActivitiesTab'
 import EventLogTab from '../components/admin/EventLogTab'
 import SettingsTab from '../components/admin/SettingsTab'
 
-type Tab = 'game' | 'teams' | 'board' | 'cards' | 'events' | 'settings'
+type Tab = 'game' | 'teams' | 'board' | 'cards' | 'activities' | 'events' | 'settings'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'game',     label: '🎮 Game' },
   { id: 'teams',    label: '👥 Teams' },
   { id: 'board',    label: '🗺️ Board' },
   { id: 'cards',    label: '🃏 Cards' },
+  { id: 'activities', label: '🎯 Activities' },
   { id: 'events',   label: '📋 Events' },
   { id: 'settings', label: '⚙️ Settings' },
 ]
@@ -29,6 +32,7 @@ export default function AdminPanel() {
   const { tiles } = useTiles()
   const { events } = useEvents(200)
   const { cards } = useCards()
+  const { activities } = useActivities()
 
   if (loading || !config) {
     return (
@@ -71,6 +75,7 @@ export default function AdminPanel() {
         {activeTab === 'teams'    && <TeamsTab teams={sortedTeams} />}
         {activeTab === 'board'    && <BoardTab tiles={tiles} config={config} />}
         {activeTab === 'cards'    && <CardDecksTab cards={cards} />}
+        {activeTab === 'activities' && <ActivitiesTab activities={activities} />}
         {activeTab === 'events'   && <EventLogTab events={events} teams={teams} />}
         {activeTab === 'settings' && <SettingsTab config={config} />}
       </div>
