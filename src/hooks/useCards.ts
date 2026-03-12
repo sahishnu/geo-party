@@ -7,8 +7,9 @@ export function useCards(deckType?: DeckType) {
   const [loading, setLoading] = useState(true)
 
   const fetchCards = () => {
-    let query = supabase.from('cards').select('*').order('created_at')
-    if (deckType) query = query.eq('deck_type', deckType)
+    const query = deckType
+      ? supabase.from('cards').select('*').order('created_at').eq('deck_type', deckType)
+      : supabase.from('cards').select('*').order('created_at')
     return query.then(({ data }) => setCards(data ?? []))
   }
 

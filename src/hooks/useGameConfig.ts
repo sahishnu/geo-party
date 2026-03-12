@@ -19,7 +19,13 @@ export function useGameConfig() {
     const channel = supabase
       .channel('game_config_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'game_config' },
-        (payload) => setConfig(payload.new as GameConfig)
+        (payload) => {
+          if (payload.eventType === 'DELETE') {
+            setConfig(null)
+          } else {
+            setConfig(payload.new as GameConfig)
+          }
+        }
       )
       .subscribe()
 
