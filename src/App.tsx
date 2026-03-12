@@ -1,3 +1,12 @@
+import { Routes, Route } from 'react-router-dom'
+import BoardView from './pages/BoardView'
+import AdminPanel from './pages/AdminPanel'
+
 export default function App() {
-  return <div className="text-white bg-gray-900 min-h-screen p-4">Geo Party</div>
+  return (
+    <Routes>
+      <Route path="/" element={<BoardView />} />
+      <Route path="/admin" element={<AdminPanel />} />
+    </Routes>
+  )
 }
