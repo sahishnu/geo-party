@@ -18,6 +18,7 @@ export default function BoardView() {
   const { tiles } = useTiles();
   const { events } = useEvents(10);
   const [connected, setConnected] = useState(true);
+  const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
 
   useEffect(() => {
     const channel = supabase.channel("connection_check").subscribe((status) => {
@@ -44,8 +45,6 @@ export default function BoardView() {
 
   const sortedTeams = [...teams].sort((a, b) => a.turn_order - b.turn_order);
   const teamMap = new Map<string, Team>(teams.map((t) => [t.id, t]));
-
-  const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
 
   const n = config.tiles_per_side;
   const tileSize = Math.min(
