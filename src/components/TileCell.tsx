@@ -90,6 +90,64 @@ export default function TileCell({
     );
   }
 
+  // ── No-stripe tiles (e.g. Chance, Pay Taxes) ──────────────────────────────
+  if (colors.noStripe) {
+    return (
+      <div
+        style={{
+          ...style,
+          backgroundColor: BODY_BG,
+          border: BORDER,
+          position: "relative",
+          overflow: "hidden",
+          ...currentOutline,
+        }}
+      >
+        {/* Label — absolutely centered, never displaced by tokens */}
+        <span
+          style={{
+            position: "absolute",
+            inset: "3px 3px 22px",
+            fontSize,
+            fontWeight: 700,
+            color: "#1a1a2a",
+            textAlign: "center",
+            lineHeight: 1.25,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            wordBreak: "break-word",
+          }}
+        >
+          {tile.label}
+        </span>
+
+        {/* Tokens — pinned to bottom */}
+        {teams.length > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 2,
+              left: 0,
+              right: 0,
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 1,
+            }}
+          >
+            {teams.map((team, i) => (
+              <div key={team.id} style={{ marginLeft: i > 0 ? -4 : 0 }}>
+                <TeamToken team={team} size="sm" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // ── Stripe dimensions based on which edge faces the center ─────────────────
   const stripeThickness = Math.round(tileSize * 0.28);
 
@@ -131,26 +189,24 @@ export default function TileCell({
       <div
         style={{
           flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "2px 2px",
+          position: "relative",
           minWidth: 0,
           minHeight: 0,
-          gap: 1,
         }}
       >
+        {/* Label — absolutely centered, never displaced by tokens */}
         <span
           style={{
+            position: "absolute",
+            inset: "2px 2px 20px",
             fontSize,
             fontWeight: 700,
             color: "#1a1a2a",
             textAlign: "center",
             lineHeight: 1.25,
-            display: "-webkit-box",
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             overflow: "hidden",
             wordBreak: "break-word",
           }}
@@ -158,17 +214,22 @@ export default function TileCell({
           {tile.label}
         </span>
 
+        {/* Tokens — pinned to bottom */}
         {teams.length > 0 && (
           <div
             style={{
+              position: "absolute",
+              bottom: 2,
+              left: 0,
+              right: 0,
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "center",
-              marginTop: 1,
+              gap: 1,
             }}
           >
             {teams.map((team, i) => (
-              <div key={team.id} style={{ marginLeft: i > 0 ? -5 : 0 }}>
+              <div key={team.id} style={{ marginLeft: i > 0 ? -4 : 0 }}>
                 <TeamToken team={team} size="sm" />
               </div>
             ))}

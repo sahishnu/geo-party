@@ -8,7 +8,7 @@ interface Props {
 
 export default function TeamToken({ team, size = "md" }: Props) {
   const sizeMap = {
-    sm: { outer: "w-8 h-8", emoji: "text-base" },
+    sm: { outer: "w-9 h-9", emoji: "text-base" },
     md: { outer: "w-11 h-11", emoji: "text-xl" },
     lg: { outer: "w-14 h-14", emoji: "text-2xl" },
   };
@@ -17,8 +17,12 @@ export default function TeamToken({ team, size = "md" }: Props) {
 
   return (
     <span
-      className={`${outer} ${emoji} flex items-center justify-center rounded-full border-2 border-white shadow-sm shrink-0`}
-      style={{ backgroundColor: bgColor }}
+      className={`${outer} ${emoji} flex items-center justify-center rounded-full shrink-0`}
+      style={{
+        backgroundColor: bgColor,
+        border: "2.5px solid rgba(255,255,255,0.9)",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.15)",
+      }}
       title={team.name}
     >
       {team.icon}

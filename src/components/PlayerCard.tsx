@@ -15,7 +15,7 @@ export default function PlayerCard({ team, isCurrentTurn }: Props) {
     <div
       className="relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-transform duration-300"
       style={{
-        borderLeft: `4px solid ${color}`,
+        border: `1px solid ${color}`,
         boxShadow: isCurrentTurn
           ? `0 0 0 2px ${color}, 0 4px 16px ${colorLight}`
           : "0 2px 8px rgba(0,0,0,0.08)",

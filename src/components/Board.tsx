@@ -39,17 +39,27 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
   const centerSize = (n - 2) * tileSize
 
   return (
-    // Outer board frame — double border + shadow
+    // Outermost frame — second border
     <div
       style={{
         display: 'inline-block',
-        border: '3px solid #1a1a2a',
-        borderRadius: 4,
+        border: '15px solid #D4E5BC',
+        borderRadius: 7,
+        padding: 4,
         boxShadow: [
           '0 28px 72px rgba(0,0,0,0.45)',
           '0 8px 24px rgba(0,0,0,0.25)',
-          'inset 0 0 0 6px #d4c9a8',
         ].join(', '),
+        background: '#1a1a2a',
+      }}
+    >
+      {/* Inner board frame — black border */}
+      <div
+        style={{
+          display: 'inline-block',
+          border: '5px solid #1a1a2a',
+          borderRadius: 4,
+          boxShadow: 'inset 0 0 0 6px #d4c9a8',
         background: '#d4c9a8',
       }}
     >
@@ -133,7 +143,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
             style={{
               position: 'absolute',
               inset: 8,
-              border: '1.5px solid rgba(26,26,42,0.2)',
+                border: '2px solid rgba(26,26,42,0.2)',
               pointerEvents: 'none',
             }}
           />
@@ -150,9 +160,9 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
               width={centerSize * 0.12}
               height={centerSize * 0.12}
               viewBox="0 0 40 40"
-              style={{ position: 'absolute', opacity: 0.25, ...pos }}
+              style={{ position: 'absolute', opacity: 1, ...pos }}
             >
-              <path d="M0 0 L40 0 L0 40 Z" fill="#1a1a2a" />
+              <path d="M0 0 L40 0 L0 40 Z" fill="#1F2937" />
             </svg>
           ))}
 
@@ -160,7 +170,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
           <div style={{ position: 'relative', textAlign: 'center', padding: '8px 16px' }}>
             {/* Globe */}
             <div style={{ fontSize: centerSize * 0.14, lineHeight: 1, marginBottom: centerSize * 0.02 }}>
-              🌍
+                🌎
             </div>
 
             {/* Game name */}
@@ -175,7 +185,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
                 lineHeight: 1,
               }}
             >
-              Geo Party
+                JeoParty
             </div>
 
             {/* Rule */}
@@ -199,7 +209,8 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
                 textTransform: 'uppercase',
               }}
             >
-              Geography · Trivia · Strategy
+                We Are One
+              </div>
             </div>
           </div>
         </div>
