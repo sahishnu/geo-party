@@ -1,14 +1,19 @@
+import { motion } from 'framer-motion'
 import type { Tile, Team, GameConfig } from '../types/database'
 import { getTileCoordinates, getTileCount, getTileSide } from '../utils/boardGeometry'
 import TileCell from './TileCell'
+import TeamToken from './TeamToken'
 
 interface Props {
   tiles: Tile[]
   teams: Team[]
   config: GameConfig
+  animatingTeamId?: string
+  animatingTeam?: Team
+  animationPosition?: number | null
 }
 
-export default function Board({ tiles, teams, config }: Props) {
+export default function Board({ tiles, teams, config, animatingTeamId, animatingTeam, animationPosition }: Props) {
   const n = config.tiles_per_side
   const totalTiles = getTileCount(n)
 
@@ -63,7 +68,7 @@ export default function Board({ tiles, teams, config }: Props) {
           const tile = tileMap.get(i)
           if (!tile) return null
 
-          const teamsHere = teamsByPosition.get(i) ?? []
+          const teamsHere = (teamsByPosition.get(i) ?? []).filter(t => t.id !== animatingTeamId)
           const { col, row } = getTileCoordinates(i, n)
           const isCurrent = currentTeam ? teamsHere.some(t => t.id === currentTeam.id) : false
           const side = getTileSide(i, n)
@@ -85,6 +90,25 @@ export default function Board({ tiles, teams, config }: Props) {
             />
           )
         })}
+
+        {/* ── Overlay avatar — hops tile-to-tile during move animation ── */}
+        {animatingTeam && animationPosition != null && (() => {
+          const { col, row } = getTileCoordinates(animationPosition, n)
+          const left = col * tileSize + tileSize / 2
+          const top = row * tileSize + tileSize / 2
+          return (
+            <motion.div
+              key={animatingTeam.id}
+              animate={{ left, top }}
+              transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+              style={{ position: 'absolute', zIndex: 50, pointerEvents: 'none' }}
+            >
+              <div style={{ transform: 'translate(-50%, -50%)', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>
+                <TeamToken team={animatingTeam} size="lg" />
+              </div>
+            </motion.div>
+          )
+        })()}
 
         {/* ── Board Center ──────────────────────────────────────────────── */}
         <div
