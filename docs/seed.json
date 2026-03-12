@@ -30,7 +30,12 @@
     { "position": 13, "label": "Desert Dash",        "tile_type": "head_to_head", "color_group": "head_to_head" },
     { "position": 14, "label": "Timezone Trivia",    "tile_type": "all_teams",    "color_group": "all_teams" },
     { "position": 15, "label": "Island Hop",         "tile_type": "solo",         "color_group": "solo" },
-    { "position": 16, "label": "Pot",                "tile_type": "pot",          "color_group": "purple" },
+    {
+      "position": 16,
+      "label": "Mafatya Paisa",
+      "tile_type": "pot",
+      "color_group": "purple"
+    },
     { "position": 17, "label": "Volcano Venture",    "tile_type": "misc",         "color_group": "misc" },
     { "position": 18, "label": "Atlas Arms Race",    "tile_type": "head_to_head", "color_group": "head_to_head" },
     { "position": 19, "label": "Currency Crunch",    "tile_type": "solo",         "color_group": "solo" },

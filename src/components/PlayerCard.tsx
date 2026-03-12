@@ -13,9 +13,8 @@ export default function PlayerCard({ team, isCurrentTurn }: Props) {
 
   return (
     <div
-      className="border border-gray-300 relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-transform duration-300"
+      className="border border-gray-200 relative flex items-center gap-3 bg-white rounded-2xl px-8 py-3 shadow-md transition-transform duration-300"
       style={{
-        // border: `1px solid gray-600`,
         boxShadow: isCurrentTurn
           ? `0 0 0 2px ${color}, 0 4px 16px ${colorLight}`
           : "0 2px 8px rgba(0,0,0,0.08)",
@@ -37,7 +36,7 @@ export default function PlayerCard({ team, isCurrentTurn }: Props) {
 
       {/* Name + Score */}
       <div className="min-w-0">
-        <div className="font-bold text-gray-800 truncate text-sm leading-tight">
+        <div className="font-extrabold text-gray-800 truncate text-md leading-tight">
           {team.name}
         </div>
         <div

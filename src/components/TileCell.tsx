@@ -45,7 +45,6 @@ export default function TileCell({
           ...style,
           backgroundColor: colors.stripeColor,
           border: BORDER,
-          overflow: "hidden",
           position: "relative",
           ...currentOutline,
         }}
@@ -91,6 +90,7 @@ export default function TileCell({
               flexWrap: "wrap",
               justifyContent: "center",
               gap: 1,
+              zIndex: 20,
             }}
           >
             {teams.map((team, i) => (
@@ -113,7 +113,6 @@ export default function TileCell({
           backgroundColor: BODY_BG,
           border: BORDER,
           position: "relative",
-          overflow: "hidden",
           ...currentOutline,
         }}
       >
@@ -149,6 +148,7 @@ export default function TileCell({
               flexWrap: "wrap",
               justifyContent: "center",
               gap: 1,
+              zIndex: 20,
             }}
           >
             {teams.map((team, i) => (
@@ -189,7 +189,6 @@ export default function TileCell({
         borderRadius: 0,
         display: "flex",
         flexDirection,
-        overflow: "hidden",
         position: "relative",
         ...currentOutline,
       }}
@@ -240,6 +239,7 @@ export default function TileCell({
               flexWrap: "wrap",
               justifyContent: "center",
               gap: 1,
+              zIndex: 20,
             }}
           >
             {teams.map((team, i) => (

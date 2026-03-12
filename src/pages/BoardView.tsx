@@ -72,9 +72,9 @@ export default function BoardView() {
 
   const n = config.tiles_per_side;
   const tileSize = Math.min(
-    Math.floor((window.innerWidth * 0.95) / n),
-    Math.floor((window.innerHeight * 0.72) / n),
-    120
+    Math.floor((window.innerWidth * 0.97) / n),
+    Math.floor((window.innerHeight * 0.80) / n),
+    140
   );
   const boardPx = n * tileSize;
   const camera = getCameraTransform(isAnimating ? currentPosition : null, n, tileSize, boardPx);

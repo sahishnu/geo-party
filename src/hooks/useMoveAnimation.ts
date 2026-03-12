@@ -21,9 +21,19 @@ export function useMoveAnimation(
 ): MoveAnimationResult {
   const [animState, setAnimState] = useState<AnimState | null>(null)
   const prevEventsRef = useRef<GameEvent[]>([])
+  const initializedRef = useRef(false)
 
   // Detect new move events
   useEffect(() => {
+    // On the first load, just record existing events without animating
+    if (!initializedRef.current) {
+      if (events.length > 0) {
+        prevEventsRef.current = events
+        initializedRef.current = true
+      }
+      return
+    }
+
     const prev = prevEventsRef.current
     const newEvent = events.find(
       e => e.event_type === 'move' && !prev.some(p => p.id === e.id)

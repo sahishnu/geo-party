@@ -29,9 +29,9 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
   const currentTeam = teams.find(t => t.id === config.current_team_id)
 
   const tileSize = Math.min(
-    Math.floor((window.innerWidth * 0.95) / n),
-    Math.floor((window.innerHeight * 0.72) / n),
-    120
+    Math.floor((window.innerWidth * 0.97) / n),
+    Math.floor((window.innerHeight * 0.80) / n),
+    140
   )
 
   const boardPx = n * tileSize
