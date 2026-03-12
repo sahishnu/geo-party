@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getTileCount, getTileCoordinates, wrapPosition, isCorner } from './boardGeometry'
+import { getTileCount, getTileCoordinates, wrapPosition, isCorner, computeMovePath } from './boardGeometry'
 
 describe('getTileCount', () => {
   it('returns correct total for tilesPerSide=9', () => {
@@ -90,5 +90,24 @@ describe('isCorner', () => {
 
   it('position 5 is not a corner', () => {
     expect(isCorner(5, 9)).toBe(false)
+  })
+})
+
+describe('computeMovePath', () => {
+  it('returns path including from and to positions', () => {
+    expect(computeMovePath(3, 6, 10)).toEqual([3, 4, 5, 6])
+  })
+
+  it('wraps around the board', () => {
+    const total = getTileCount(10) // 36
+    expect(computeMovePath(34, 2, 10)).toEqual([34, 35, 0, 1, 2])
+  })
+
+  it('single space move', () => {
+    expect(computeMovePath(5, 6, 10)).toEqual([5, 6])
+  })
+
+  it('handles from === to (zero-length move stays put)', () => {
+    expect(computeMovePath(5, 5, 10)).toEqual([5])
   })
 })

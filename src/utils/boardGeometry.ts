@@ -56,6 +56,26 @@ export function wrapPosition(position: number, tilesPerSide: number): number {
   return position % total
 }
 
+/**
+ * Returns the sequence of board positions from `from` to `to` (inclusive),
+ * stepping +1 and wrapping around the perimeter.
+ */
+export function computeMovePath(
+  from: number,
+  to: number,
+  tilesPerSide: number
+): number[] {
+  const total = getTileCount(tilesPerSide)
+  if (from === to) return [from]
+  const path: number[] = [from]
+  let pos = from
+  while (pos !== to) {
+    pos = (pos + 1) % total
+    path.push(pos)
+  }
+  return path
+}
+
 export function isCorner(position: number, tilesPerSide: number): boolean {
   const n = tilesPerSide - 1
   return position % n === 0
