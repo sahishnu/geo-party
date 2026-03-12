@@ -31,10 +31,12 @@ function FlipCard({
 }) {
   const [flipped, setFlipped] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setFlipped(true), 1200);
-    return () => clearTimeout(timer);
-  }, []);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => setFlipped(true), 1200);
+  //   return () => clearTimeout(timer);
+  // }, []);
+
+  const lightBg = bgColor + "CC";
 
   return (
     <div
@@ -46,44 +48,98 @@ function FlipCard({
       }}
     >
       <motion.div
-        className="max-w-lg w-full mx-4 relative"
-        style={{ transformStyle: "preserve-3d" }}
+        className="relative"
+        style={{
+          width: "min(320px, 85vw)",
+          aspectRatio: "2.5 / 3.5",
+          transformStyle: "preserve-3d",
+        }}
         initial={{ rotateY: 0 }}
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
       >
         {/* Back face (shown first) */}
         <div
-          className="rounded-2xl p-10 text-center border-4 shadow-2xl"
+          className="rounded-2xl border-4 shadow-2xl absolute inset-0 flex flex-col items-center justify-center overflow-hidden"
           style={{
-            backgroundColor: bgColor,
-            borderColor,
+            backgroundColor: "#FAFAF8",
+            borderColor: 'white',
             backfaceVisibility: "hidden",
           }}
         >
-          <div className="text-7xl mb-4">{backLabel}</div>
-          <div className="text-sm uppercase tracking-widest opacity-75 text-white">
-            {backSubtitle}
+          {/* Decorative diamond pattern */}
+          <div
+            className="absolute inset-4 rounded-xl border-[12px] opacity-100"
+            style={{ borderColor: bgColor }}
+          />
+          <div
+            className="absolute inset-0 flex items-center justify-center opacity-[0.06]"
+            style={{
+              backgroundImage: `repeating-linear-gradient(
+                45deg,
+                ${bgColor} 0px,
+                ${bgColor} 1px,
+                transparent 1px,
+                transparent 12px
+              ),
+              repeating-linear-gradient(
+                -45deg,
+                ${bgColor} 0px,
+                ${bgColor} 1px,
+                transparent 1px,
+                transparent 12px
+              )`,
+            }}
+          />
+          <div className="relative z-10 text-center flex flex-col items-center justify-between h-full my-8">
+            <div
+              className="text-xl font-bold uppercase tracking-[0.25em] -scale-100"
+              style={{ color: bgColor }}
+            >
+              {backSubtitle}
+            </div>
+            <div className="text-7xl mb-3">{backLabel}</div>
+            <div
+              className="text-xl font-bold uppercase tracking-[0.25em]"
+              style={{ color: bgColor }}
+            >
+              {backSubtitle}
+            </div>
           </div>
         </div>
 
         {/* Front face (revealed after flip) */}
         <div
-          className="rounded-2xl p-10 text-center border-4 shadow-2xl absolute inset-0"
+          className="rounded-2xl border-8 shadow-2xl absolute inset-0 flex flex-col items-center justify-center px-8"
           style={{
-            backgroundColor: bgColor,
+            backgroundColor: 'white',
             borderColor,
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
         >
-          <div className="text-sm uppercase tracking-widest mb-4 opacity-75 text-white">
+          {/* Top color strip */}
+          {/* <div
+            className="absolute top-0 left-0 right-0 h-5 rounded-t-xl"
+            style={{ backgroundColor: bgColor }}
+          /> */}
+          <div
+            className="text-xs font-bold uppercase tracking-[0.25em] mb-4"
+            style={{ color: bgColor }}
+          >
             {frontSubtitle}
           </div>
-          <div className="text-3xl font-bold leading-snug text-white">
+          <div
+            className="text-3xl font-bold leading-snug text-center"
+            style={{ color: "#1a1a2e" }}
+          >
             {frontLabel}
           </div>
-          <div className="mt-8 text-sm opacity-60 text-white">Click anywhere to dismiss</div>
+          {/* Bottom color strip */}
+          {/* <div
+            className="absolute bottom-0 left-0 right-0 h-5"
+            style={{ backgroundColor: bgColor }}
+          /> */}
         </div>
       </motion.div>
     </div>
@@ -183,27 +239,25 @@ export default function BoardView() {
           />
         ))}
 
-        {/* Pot pill — pushes to the right */}
-        <div className="ml-auto shrink-0">
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-white shadow-md text-sm"
-            style={{
-              background: "linear-gradient(135deg, #F59E0B, #D97706)",
-              boxShadow:
-                config.pot_total > 0
-                  ? "0 0 12px rgba(245, 158, 11, 0.5), 0 2px 8px rgba(0,0,0,0.1)"
-                  : "0 2px 8px rgba(0,0,0,0.08)",
-            }}
-          >
-            <span className="text-lg">🪙</span>
-            <div>
-              <div className="text-xs opacity-80 leading-none">POT</div>
-              <div className="text-lg font-extrabold leading-tight tabular-nums">
-                {config.pot_total.toLocaleString()}
-                <span className="text-xs font-semibold opacity-80 ml-1">
-                  pts
-                </span>
-              </div>
+        {/* Pot card — inline, same size as player cards */}
+        <div
+          className="border border-amber-300 relative flex items-center gap-3 rounded-2xl px-8 py-3 shadow-md"
+          style={{
+            background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
+            boxShadow:
+              config.pot_total > 0
+                ? "0 0 12px rgba(245, 158, 11, 0.3), 0 2px 8px rgba(0,0,0,0.08)"
+                : "0 2px 8px rgba(0,0,0,0.08)",
+          }}
+        >
+          <span className="text-3xl">🪙</span>
+          <div className="min-w-0">
+            <div className="font-extrabold text-amber-700 truncate text-md leading-tight">
+              Pot
+            </div>
+            <div className="font-extrabold text-2xl leading-tight tabular-nums text-amber-600">
+              {config.pot_total.toLocaleString()}
+              <span className="text-xs font-semibold text-amber-400 ml-1">pts</span>
             </div>
           </div>
         </div>
