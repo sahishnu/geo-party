@@ -16,6 +16,7 @@ export default function GameTab({ teams, tiles, config }: Props) {
   const [overridePanelOpen, setOverridePanelOpen] = useState<Record<string, boolean>>({})
   const [overrideScoreInputs, setOverrideScoreInputs] = useState<Record<string, string>>({})
   const [overridePositionInputs, setOverridePositionInputs] = useState<Record<string, string>>({})
+  const [potAwardTeamIds, setPotAwardTeamIds] = useState<string[]>([])
 
   const tileMap = new Map(tiles.map(t => [t.position, t]))
 
@@ -98,6 +99,38 @@ export default function GameTab({ teams, tiles, config }: Props) {
     setScoreNotes(prev => ({ ...prev, [team.id]: '' }))
   }
 
+  const togglePotAwardTeam = (teamId: string) => {
+    setPotAwardTeamIds(prev =>
+      prev.includes(teamId) ? prev.filter(id => id !== teamId) : [...prev, teamId]
+    )
+  }
+
+  const awardPot = async () => {
+    if (potAwardTeamIds.length === 0 || config.pot_total <= 0) return
+    const share = Math.floor(config.pot_total / potAwardTeamIds.length)
+    const selectedTeams = teams.filter(t => potAwardTeamIds.includes(t.id))
+
+    await Promise.all(
+      selectedTeams.map(team =>
+        supabase.from('teams').update({ score: team.score + share }).eq('id', team.id)
+      )
+    )
+    await supabase.from('game_config').update({ pot_total: 0 }).eq('id', config.id)
+    await Promise.all(
+      selectedTeams.map(team =>
+        supabase.from('events').insert({
+          event_type: 'pot_claim',
+          team_id: team.id,
+          points_delta: share,
+          notes: potAwardTeamIds.length > 1
+            ? `Awarded ${share} pts (pot of ${config.pot_total} split ${potAwardTeamIds.length} ways)`
+            : `Awarded pot of ${share} points`,
+        })
+      )
+    )
+    setPotAwardTeamIds([])
+  }
+
   const setCurrentTurn = async (teamId: string) => {
     await supabase.from('game_config').update({ current_team_id: teamId }).eq('id', config.id)
   }
@@ -126,6 +159,42 @@ export default function GameTab({ teams, tiles, config }: Props) {
           <span className="text-2xl font-bold text-purple-200 ml-2">{config.pot_total}</span>
         </div>
       </div>
+
+      {config.pot_total > 0 && teams.length > 0 && (
+        <div className="bg-purple-950 border border-purple-700 rounded-lg p-3">
+          <div className="text-sm font-semibold text-purple-300 mb-2">Award Pot to Team(s)</div>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {teams.map(team => (
+              <button
+                key={team.id}
+                onClick={() => togglePotAwardTeam(team.id)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
+                  potAwardTeamIds.includes(team.id)
+                    ? 'bg-purple-600 border-purple-400 text-white'
+                    : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-purple-500'
+                }`}
+              >
+                <span>{team.icon}</span>
+                <span>{team.name}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            {potAwardTeamIds.length > 1 && (
+              <span className="text-xs text-purple-400">
+                {Math.floor(config.pot_total / potAwardTeamIds.length)} pts each
+              </span>
+            )}
+            <button
+              onClick={awardPot}
+              disabled={potAwardTeamIds.length === 0}
+              className="bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-4 py-1.5 rounded text-sm font-semibold"
+            >
+              Award {config.pot_total} pts
+            </button>
+          </div>
+        </div>
+      )}
 
       {teams.length === 0 && (
         <p className="text-gray-500 italic text-sm">No teams yet. Add teams in the Teams tab.</p>
