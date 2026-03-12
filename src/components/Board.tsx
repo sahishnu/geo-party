@@ -167,11 +167,11 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
           ))}
 
           {/* Content */}
-          <div style={{ position: 'relative', textAlign: 'center', padding: '8px 16px' }}>
+            <div style={{ position: 'relative', textAlign: 'center', padding: '8px 16px', transform: 'rotate(-45deg)' }}>
             {/* Globe */}
-            <div style={{ fontSize: centerSize * 0.14, lineHeight: 1, marginBottom: centerSize * 0.02 }}>
+              {/* <div style={{ fontSize: centerSize * 0.14, lineHeight: 1, marginBottom: centerSize * 0.02 }}>
                 🌎
-            </div>
+            </div> */}
 
             {/* Game name */}
             <div

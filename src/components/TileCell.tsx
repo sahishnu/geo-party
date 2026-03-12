@@ -2,6 +2,15 @@ import type { Tile, Team } from "../types/database";
 import type { TileSide } from "../utils/boardGeometry";
 import { getTileColors } from "../utils/tileColors";
 import TeamToken from "./TeamToken";
+import highPunch from "../assets/high-punch.svg";
+import guards from "../assets/guards.svg";
+import uprising from "../assets/uprising.svg";
+
+const TILE_ICONS: Partial<Record<string, string>> = {
+  solo: highPunch,
+  head_to_head: guards,
+  all_teams: uprising,
+};
 
 const CORNER_ICONS: Partial<Record<string, string>> = {
   start: "🚀",
@@ -31,10 +40,22 @@ export default function TileCell({
   style,
 }: Props) {
   const colors = getTileColors(tile.tile_type);
+  const tileIcon = TILE_ICONS[tile.tile_type];
   const fontSize = Math.max(7, Math.round(tileSize * 0.115));
   const currentOutline = isCurrent
     ? { outline: "2.5px solid #F59E0B", outlineOffset: "-2px", zIndex: 10 }
     : {};
+
+  const indexStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 2,
+    left: 3,
+    fontSize: Math.max(6, Math.round(tileSize * 0.09)),
+    color: side === "corner" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.2)",
+    lineHeight: 1,
+    zIndex: 5,
+    pointerEvents: "none",
+  };
 
   // ── Corner tiles ──────────────────────────────────────────────────────────
   if (side === "corner") {
@@ -49,6 +70,7 @@ export default function TileCell({
           ...currentOutline,
         }}
       >
+        <span style={indexStyle}>{tile.position}</span>
         {/* Icon + label — absolutely centered, never displaced by tokens */}
         <div
           style={{
@@ -116,6 +138,7 @@ export default function TileCell({
           ...currentOutline,
         }}
       >
+        <span style={indexStyle}>{tile.position}</span>
         {/* Label — absolutely centered, never displaced by tokens */}
         <span
           style={{
@@ -193,6 +216,7 @@ export default function TileCell({
         ...currentOutline,
       }}
     >
+      <span style={indexStyle}>{tile.position}</span>
       {/* Colored stripe on inner edge */}
       <div
         style={{ ...stripeStyle, backgroundColor: colors.stripeColor }}
@@ -207,27 +231,45 @@ export default function TileCell({
           minHeight: 0,
         }}
       >
-        {/* Label — absolutely centered, never displaced by tokens */}
-        <span
+        {/* Icon + Label — absolutely centered */}
+        <div
           style={{
             position: "absolute",
-            inset: "2px 2px 20px",
-            fontSize,
-            fontWeight: 700,
-            color: "#1a1a2a",
-            textAlign: "center",
-            lineHeight: 1.25,
+            inset: 0,
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
-            wordBreak: "break-word",
+            padding: 2,
           }}
         >
-          {tile.label}
-        </span>
+          {tileIcon && (
+            <img
+              src={tileIcon}
+              alt=""
+              style={{
+                width: Math.round(tileSize * 0.4),
+                height: Math.round(tileSize * 0.4),
+                objectFit: "contain",
+              }}
+            />
+          )}
+          <span
+            style={{
+              fontSize,
+              fontWeight: 700,
+              color: "#1a1a2a",
+              textAlign: "center",
+              lineHeight: 1.15,
+              wordBreak: "break-word",
+            }}
+          >
+            {tile.label}
+          </span>
+        </div>
 
-        {/* Tokens — pinned to bottom */}
+        {/* Tokens — pinned to bottom, overlaid */}
         {teams.length > 0 && (
           <div
             style={{

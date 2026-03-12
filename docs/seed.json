@@ -6,76 +6,315 @@
     "tax_penalty": 30
   },
   "teams": [
-    { "name": "Team A", "icon": "🦊" },
-    { "name": "Team B", "icon": "🐙" },
-    { "name": "Team C", "icon": "🦅" },
-    { "name": "Team D", "icon": "🐢" },
-    { "name": "Team E", "icon": "🦁" },
-    { "name": "Team F", "icon": "🐲" }
+    {
+      "name": "Team A",
+      "icon": "🦊"
+    },
+    {
+      "name": "Team B",
+      "icon": "🐙"
+    },
+    {
+      "name": "Team C",
+      "icon": "🦅"
+    },
+    {
+      "name": "Team D",
+      "icon": "🐢"
+    },
+    {
+      "name": "Team E",
+      "icon": "🦁"
+    },
+    {
+      "name": "Team F",
+      "icon": "🐲"
+    }
   ],
   "tiles": [
-    { "position": 0,  "label": "Start",            "tile_type": "start",        "color_group": "gray" },
-    { "position": 1,  "label": "Flag Frenzy",       "tile_type": "solo",         "color_group": "solo" },
-    { "position": 2,  "label": "Map Duel",           "tile_type": "head_to_head", "color_group": "head_to_head" },
-    { "position": 3,  "label": "Capital Quiz",       "tile_type": "all_teams",    "color_group": "all_teams" },
-    { "position": 4,  "label": "Pay Taxes",          "tile_type": "pay_taxes",    "color_group": "pink" },
-    { "position": 5,  "label": "River Run",           "tile_type": "misc",         "color_group": "misc" },
-    { "position": 6,  "label": "Landmark Guess",     "tile_type": "solo",         "color_group": "solo" },
-    { "position": 7,  "label": "Border Battle",      "tile_type": "head_to_head", "color_group": "head_to_head" },
-    { "position": 8,  "label": "Jail",               "tile_type": "jail",         "color_group": "orange" },
-    { "position": 9,  "label": "Continent Sprint",   "tile_type": "all_teams",    "color_group": "all_teams" },
-    { "position": 10, "label": "Mountain Match",     "tile_type": "solo",         "color_group": "solo" },
-    { "position": 11, "label": "Ocean Explorer",     "tile_type": "misc",         "color_group": "misc" },
-    { "position": 12, "label": "Chance",             "tile_type": "chance",       "color_group": "indigo" },
-    { "position": 13, "label": "Desert Dash",        "tile_type": "head_to_head", "color_group": "head_to_head" },
-    { "position": 14, "label": "Timezone Trivia",    "tile_type": "all_teams",    "color_group": "all_teams" },
-    { "position": 15, "label": "Island Hop",         "tile_type": "solo",         "color_group": "solo" },
+    {
+      "position": 0,
+      "label": "",
+      "tile_type": "start",
+      "color_group": "gray"
+    },
+    {
+      "position": 1,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 2,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 3,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 4,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 5,
+      "label": "",
+      "tile_type": "misc",
+      "color_group": "misc"
+    },
+    {
+      "position": 6,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 7,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 8,
+      "label": "",
+      "tile_type": "jail",
+      "color_group": "orange"
+    },
+    {
+      "position": 9,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 10,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 11,
+      "label": "",
+      "tile_type": "misc",
+      "color_group": "misc"
+    },
+    {
+      "position": 12,
+      "label": "Taxes",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
+      "position": 13,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 14,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 15,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
     {
       "position": 16,
-      "label": "Mafatya Paisa",
+      "label": "",
       "tile_type": "pot",
       "color_group": "purple"
     },
-    { "position": 17, "label": "Volcano Venture",    "tile_type": "misc",         "color_group": "misc" },
-    { "position": 18, "label": "Atlas Arms Race",    "tile_type": "head_to_head", "color_group": "head_to_head" },
-    { "position": 19, "label": "Currency Crunch",    "tile_type": "solo",         "color_group": "solo" },
-    { "position": 20, "label": "Pay Taxes",          "tile_type": "pay_taxes",    "color_group": "pink" },
-    { "position": 21, "label": "Climate Challenge",  "tile_type": "all_teams",    "color_group": "all_teams" },
-    { "position": 22, "label": "Waterfall Wager",    "tile_type": "head_to_head", "color_group": "head_to_head" },
-    { "position": 23, "label": "Glacier Grab",       "tile_type": "misc",         "color_group": "misc" },
-    { "position": 24, "label": "Go to Jail",         "tile_type": "jail",         "color_group": "orange" },
-    { "position": 25, "label": "Safari Sprint",      "tile_type": "solo",         "color_group": "solo" },
-    { "position": 26, "label": "Peninsula Puzzle",   "tile_type": "all_teams",    "color_group": "all_teams" },
-    { "position": 27, "label": "Reef Rumble",        "tile_type": "head_to_head", "color_group": "head_to_head" },
-    { "position": 28, "label": "Chance",             "tile_type": "chance",       "color_group": "indigo" },
-    { "position": 29, "label": "Tundra Trek",        "tile_type": "misc",         "color_group": "misc" },
-    { "position": 30, "label": "Latitude Lore",      "tile_type": "solo",         "color_group": "solo" },
-    { "position": 31, "label": "Canyon Clash",       "tile_type": "all_teams",    "color_group": "all_teams" }
+    {
+      "position": 17,
+      "label": "",
+      "tile_type": "misc",
+      "color_group": "misc"
+    },
+    {
+      "position": 18,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 19,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 20,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 21,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 22,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 23,
+      "label": "",
+      "tile_type": "misc",
+      "color_group": "misc"
+    },
+    {
+      "position": 24,
+      "label": "",
+      "tile_type": "jail",
+      "color_group": "orange"
+    },
+    {
+      "position": 25,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 26,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 27,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 28,
+      "label": "Taxes",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
+      "position": 29,
+      "label": "",
+      "tile_type": "misc",
+      "color_group": "misc"
+    },
+    {
+      "position": 30,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 31,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    }
   ],
   "cards": [
-    { "deck_type": "chance", "content": "Move forward 3 spaces" },
-    { "deck_type": "chance", "content": "Move back 2 spaces" },
-    { "deck_type": "chance", "content": "Gain 100 points!" },
-    { "deck_type": "chance", "content": "Lose 50 points" },
-    { "deck_type": "chance", "content": "Swap positions with the team in last place" },
-    { "deck_type": "chance", "content": "Skip your next turn" },
-    { "deck_type": "chance", "content": "Collect 25 points from every other team" },
-    { "deck_type": "chance", "content": "Go directly to Start — collect 50 bonus points" },
-    { "deck_type": "chance", "content": "Go directly to Jail — do not pass Start" },
-    { "deck_type": "chance", "content": "Double your points from your next activity" },
-    { "deck_type": "chance", "content": "Free pass: avoid your next penalty" },
-    { "deck_type": "chance", "content": "Roll again!" }
+    {
+      "deck_type": "chance",
+      "content": "Move forward 3 spaces"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Move back 2 spaces"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Gain 100 points!"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Lose 50 points"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Swap positions with the team in last place"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Skip your next turn"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Collect 25 points from every other team"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Go directly to Start — collect 50 bonus points"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Go directly to Jail — do not pass Start"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Double your points from your next activity"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Free pass: avoid your next penalty"
+    },
+    {
+      "deck_type": "chance",
+      "content": "Roll again!"
+    }
   ],
   "activities": [
-    { "title": "Name 5 African countries in 15 seconds", "game_mode": "solo" },
-    { "title": "Point to Brazil on a blank map", "game_mode": "solo" },
-    { "title": "Name the capital of a random country", "game_mode": "head_to_head" },
-    { "title": "Flag identification speed round", "game_mode": "head_to_head" },
-    { "title": "Guess the country from 3 clues", "game_mode": "all_teams" },
-    { "title": "Geography charades — act out a landmark", "game_mode": "all_teams" },
-    { "title": "Relay: each teammate names a European country", "game_mode": "team_relay" },
-    { "title": "Pin the city on the map — closest wins", "game_mode": "solo" },
-    { "title": "Name that river from a satellite photo", "game_mode": "head_to_head" },
-    { "title": "Draw a country's outline from memory", "game_mode": "all_teams" }
+    {
+      "title": "Name 5 African countries in 15 seconds",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Point to Brazil on a blank map",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Name the capital of a random country",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Flag identification speed round",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Guess the country from 3 clues",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "Geography charades — act out a landmark",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "Relay: each teammate names a European country",
+      "game_mode": "team_relay"
+    },
+    {
+      "title": "Pin the city on the map — closest wins",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Name that river from a satellite photo",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Draw a country's outline from memory",
+      "game_mode": "all_teams"
+    }
   ]
 }

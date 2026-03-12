@@ -47,8 +47,8 @@ function validateSeed(data: unknown): { valid: true; seed: GameSeed } | { valid:
     return { valid: false, error: 'Each team must have "name" and "icon"' }
 
   if (seed.tiles && !Array.isArray(seed.tiles)) return { valid: false, error: '"tiles" must be an array' }
-  if (seed.tiles?.some(t => typeof t.position !== 'number' || !t.label || !t.tile_type))
-    return { valid: false, error: 'Each tile must have "position", "label", and "tile_type"' }
+  if (seed.tiles?.some(t => typeof t.position !== 'number' || !t.tile_type))
+    return { valid: false, error: 'Each tile must have "position" and "tile_type"' }
   if (seed.tiles?.some(t => !VALID_TILE_TYPES.includes(t.tile_type)))
     return { valid: false, error: `Invalid tile_type. Must be one of: ${VALID_TILE_TYPES.join(', ')}` }
 
