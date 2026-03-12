@@ -12,6 +12,84 @@ import { getCameraTransform } from "../utils/cameraTransform";
 import { supabase } from "../lib/supabase";
 import type { Team } from "../types/database";
 
+function FlipCard({
+  backLabel,
+  backSubtitle,
+  bgColor,
+  borderColor,
+  frontLabel,
+  frontSubtitle,
+  onDismiss,
+}: {
+  backLabel: string;
+  backSubtitle: string;
+  bgColor: string;
+  borderColor: string;
+  frontLabel: string;
+  frontSubtitle: string;
+  onDismiss: () => void;
+}) {
+  const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setFlipped(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+      style={{ perspective: "1200px" }}
+      onClick={() => {
+        if (flipped) onDismiss();
+        else setFlipped(true);
+      }}
+    >
+      <motion.div
+        className="max-w-lg w-full mx-4 relative"
+        style={{ transformStyle: "preserve-3d" }}
+        initial={{ rotateY: 0 }}
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+      >
+        {/* Back face (shown first) */}
+        <div
+          className="rounded-2xl p-10 text-center border-4 shadow-2xl"
+          style={{
+            backgroundColor: bgColor,
+            borderColor,
+            backfaceVisibility: "hidden",
+          }}
+        >
+          <div className="text-7xl mb-4">{backLabel}</div>
+          <div className="text-sm uppercase tracking-widest opacity-75 text-white">
+            {backSubtitle}
+          </div>
+        </div>
+
+        {/* Front face (revealed after flip) */}
+        <div
+          className="rounded-2xl p-10 text-center border-4 shadow-2xl absolute inset-0"
+          style={{
+            backgroundColor: bgColor,
+            borderColor,
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          <div className="text-sm uppercase tracking-widest mb-4 opacity-75 text-white">
+            {frontSubtitle}
+          </div>
+          <div className="text-3xl font-bold leading-snug text-white">
+            {frontLabel}
+          </div>
+          <div className="mt-8 text-sm opacity-60 text-white">Click anywhere to dismiss</div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function BoardView() {
   const { config, loading: configLoading } = useGameConfig();
   const { teams } = useTeams();
@@ -167,43 +245,27 @@ export default function BoardView() {
       </div>
 
       {revealedCard && (
-        <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-          onClick={() => setRevealedCard(null)}
-        >
-          <div className="max-w-lg w-full mx-4 rounded-2xl p-10 text-center border-4 shadow-2xl bg-indigo-700 border-indigo-400">
-            <div className="text-sm uppercase tracking-widest mb-4 opacity-75 text-white">
-              Chance Card
-            </div>
-            <div className="text-3xl font-bold leading-snug text-white">
-              {revealedCard}
-            </div>
-            <div className="mt-8 text-sm opacity-60 text-white">Click anywhere to dismiss</div>
-          </div>
-        </div>
+        <FlipCard
+          backLabel="❓"
+          backSubtitle="Chance Card"
+          bgColor="#4338CA"
+          borderColor="#818CF8"
+          frontLabel={revealedCard}
+          frontSubtitle="Chance Card"
+          onDismiss={() => setRevealedCard(null)}
+        />
       )}
 
       {activeActivity && (
-        <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-          onClick={() => setActiveActivity(null)}
-        >
-          <div
-            className="max-w-lg w-full mx-4 rounded-2xl p-10 text-center border-4 shadow-2xl"
-            style={{
-              backgroundColor: activeActivity.color,
-              borderColor: activeActivity.color + 'AA',
-            }}
-          >
-            <div className="text-sm uppercase tracking-widest mb-4 opacity-75 text-white">
-              {activeActivity.game_mode.replace(/_/g, ' ')}
-            </div>
-            <div className="text-4xl font-bold leading-snug text-white">
-              {activeActivity.title}
-            </div>
-            <div className="mt-8 text-sm opacity-60 text-white">Click anywhere to dismiss</div>
-          </div>
-        </div>
+        <FlipCard
+          backLabel="⚡"
+          backSubtitle={activeActivity.game_mode.replace(/_/g, ' ')}
+          bgColor={activeActivity.color}
+          borderColor={activeActivity.color + 'AA'}
+          frontLabel={activeActivity.title}
+          frontSubtitle={activeActivity.game_mode.replace(/_/g, ' ')}
+          onDismiss={() => setActiveActivity(null)}
+        />
       )}
     </div>
   );
