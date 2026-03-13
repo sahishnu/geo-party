@@ -6,6 +6,10 @@ import TeamToken from "./TeamToken";
 import highPunch from "../assets/high-punch.svg";
 import guards from "../assets/guards.svg";
 import uprising from "../assets/uprising.svg";
+import prisoner from "../assets/prisoner.svg";
+import policeOfficerHead from "../assets/police-officer-head.svg";
+import payMoney from "../assets/pay-money.svg";
+import cash from "../assets/cash.svg";
 
 const TILE_ICONS: Partial<Record<string, string>> = {
   solo: highPunch,
@@ -18,6 +22,13 @@ const CORNER_ICONS: Partial<Record<string, string>> = {
   jail: "🚔",
   pot: "💰",
   pay_taxes: "🏚️",
+};
+
+const CORNER_SVGS: Partial<Record<string, string>> = {
+  jail: prisoner,
+  go_to_jail: policeOfficerHead,
+  pay_taxes: payMoney,
+  pot: cash,
 };
 
 interface Props {
@@ -78,7 +89,11 @@ export default function TileCell({
         <div
           style={{
             position: "absolute",
-            inset: "50%",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "100%",
+            height: "100%",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -86,21 +101,31 @@ export default function TileCell({
             gap: 2,
           }}
         >
-          <span style={{ fontSize: tileSize * 0.32, lineHeight: 1 }}>{icon}</span>
-          <span
-            style={{
-              fontWeight: 800,
-              fontSize: tileSize * 0.13,
-              color: "#ffffff",
-              textAlign: "center",
-              textTransform: "uppercase",
-              lineHeight: 1.2,
-              letterSpacing: "0.02em",
-              padding: "0 4px",
-            }}
-          >
-            {tile.label}
-          </span>
+          {CORNER_SVGS[tile.tile_type] ? (
+            <img
+              src={CORNER_SVGS[tile.tile_type]}
+              alt={tile.label}
+              style={{ width: tileSize * 0.7, height: tileSize * 0.7, filter: "invert(1)" }}
+            />
+          ) : (
+            <>
+                <span style={{ fontSize: tileSize * 0.32, lineHeight: 1 }}>{icon}</span>
+                <span
+                  style={{
+                    fontWeight: 800,
+                    fontSize: tileSize * 0.13,
+                    color: "#ffffff",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    lineHeight: 1.2,
+                    letterSpacing: "0.02em",
+                    padding: "0 4px",
+                  }}
+                >
+                  {tile.label}
+                </span>
+            </>
+          )}
         </div>
 
         {/* Tokens — pinned to bottom */}
@@ -162,7 +187,7 @@ export default function TileCell({
         <div
           style={{
             position: "absolute",
-            inset: "3px 3px 22px",
+            inset: isTaxes ? "0" : "3px 3px 22px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -178,21 +203,26 @@ export default function TileCell({
               strokeWidth={2}
             />
           )}
-          {isTaxes && (
-            <HandCoins size={iconSize} color={colors.stripeColor} strokeWidth={2} />
+          {isTaxes ? (
+            <img
+              src={payMoney}
+              alt="Pay Taxes"
+              style={{ width: tileSize * 0.7, height: tileSize * 0.7 }}
+            />
+          ) : (
+            <span
+              style={{
+                fontSize,
+                fontWeight: 700,
+                color: "#1a1a2a",
+                textAlign: "center",
+                lineHeight: 1.25,
+                wordBreak: "break-word",
+              }}
+            >
+              {tile.label}
+            </span>
           )}
-          <span
-            style={{
-              fontSize,
-              fontWeight: 700,
-              color: "#1a1a2a",
-              textAlign: "center",
-              lineHeight: 1.25,
-              wordBreak: "break-word",
-            }}
-          >
-            {tile.label}
-          </span>
         </div>
 
         {/* Tokens — pinned to bottom */}
