@@ -107,7 +107,7 @@
     },
     {
       "position": 12,
-      "label": "Pay Taxes",
+      "label": "Pay Tax",
       "tile_type": "pay_taxes",
       "color_group": "pink"
     },
@@ -203,7 +203,7 @@
     },
     {
       "position": 28,
-      "label": "Pay Taxes",
+      "label": "Pay Tax",
       "tile_type": "pay_taxes",
       "color_group": "pink"
     },

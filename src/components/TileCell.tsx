@@ -1,4 +1,4 @@
-import { CircleHelp } from "lucide-react";
+import { CircleHelp, HandCoins } from "lucide-react";
 import type { Tile, Team } from "../types/database";
 import type { TileSide } from "../utils/boardGeometry";
 import { getTileColors } from "../utils/tileColors";
@@ -44,7 +44,7 @@ export default function TileCell({
 }: Props) {
   const colors = getTileColors(tile.tile_type);
   const tileIcon = TILE_ICONS[tile.tile_type];
-  const fontSize = Math.max(7, Math.round(tileSize * 0.115));
+  const fontSize = Math.max(7, Math.round(tileSize * 0.16));
   const currentOutline = isCurrent
     ? { outline: "2.5px solid #F59E0B", outlineOffset: "-2px", zIndex: 10 }
     : {};
@@ -179,7 +179,7 @@ export default function TileCell({
             />
           )}
           {isTaxes && (
-            <span style={{ fontSize: iconSize, lineHeight: 1 }}>🪙</span>
+            <HandCoins size={iconSize} color={colors.stripeColor} strokeWidth={2} />
           )}
           <span
             style={{
