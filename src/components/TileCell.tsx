@@ -1,21 +1,58 @@
-import { CircleHelp, HandCoins } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import type { Tile, Team } from "../types/database";
 import type { TileSide } from "../utils/boardGeometry";
 import { getTileColors } from "../utils/tileColors";
 import TeamToken from "./TeamToken";
-import highPunch from "../assets/high-punch.svg";
-import guards from "../assets/guards.svg";
-import uprising from "../assets/uprising.svg";
 import prisoner from "../assets/prisoner.svg";
 import policeOfficerHead from "../assets/police-officer-head.svg";
 import payMoney from "../assets/pay-money.svg";
 import cash from "../assets/cash.svg";
 
-const TILE_ICONS: Partial<Record<string, string>> = {
-  solo: highPunch,
-  head_to_head: guards,
-  all_teams: uprising,
-};
+function DotPattern({ type, size, color = "#1a1a2a" }: { type: string; size: number; color?: string }) {
+  const dotR = Math.max(2, size * 0.07);
+  const cx = size / 2;
+  const cy = size / 2;
+
+  if (type === "solo") {
+    return (
+      <svg width={size} height={size}>
+        <circle cx={cx} cy={cy} r={dotR} fill={color} />
+      </svg>
+    );
+  }
+
+  if (type === "head_to_head") {
+    const gap = dotR * 2.5;
+    return (
+      <svg width={size} height={size}>
+        <circle cx={cx - gap} cy={cy} r={dotR} fill={color} />
+        <circle cx={cx + gap} cy={cy} r={dotR} fill={color} />
+      </svg>
+    );
+  }
+
+  if (type === "all_teams") {
+    const r = size * 0.22;
+    return (
+      <svg width={size} height={size}>
+        {Array.from({ length: 6 }).map((_, i) => {
+          const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+          return (
+            <circle
+              key={i}
+              cx={cx + r * Math.cos(angle)}
+              cy={cy + r * Math.sin(angle)}
+              r={dotR}
+              fill={color}
+            />
+          );
+        })}
+      </svg>
+    );
+  }
+
+  return null;
+}
 
 const CORNER_ICONS: Partial<Record<string, string>> = {
   start: "🚀",
@@ -54,7 +91,7 @@ export default function TileCell({
   style,
 }: Props) {
   const colors = getTileColors(tile.tile_type);
-  const tileIcon = TILE_ICONS[tile.tile_type];
+  const hasDots = tile.tile_type === "solo" || tile.tile_type === "head_to_head" || tile.tile_type === "all_teams";
   const fontSize = Math.max(7, Math.round(tileSize * 0.16));
   const currentOutline = isCurrent
     ? { outline: "2.5px solid #F59E0B", outlineOffset: "-2px", zIndex: 10 }
@@ -323,16 +360,8 @@ export default function TileCell({
             padding: 2,
           }}
         >
-          {tileIcon && (
-            <img
-              src={tileIcon}
-              alt=""
-              style={{
-                width: Math.round(tileSize * 0.4),
-                height: Math.round(tileSize * 0.4),
-                objectFit: "contain",
-              }}
-            />
+          {hasDots && (
+            <DotPattern type={tile.tile_type} size={Math.round(tileSize * 0.4)} color={colors.stripeColor} />
           )}
           <span
             style={{
