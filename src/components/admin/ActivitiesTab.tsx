@@ -1,41 +1,37 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import type { Activity, GameMode } from '../../types/database'
+import type { Activity, GameMode, Team } from '../../types/database'
 import { getTileColors } from '../../utils/tileColors'
 
 const GAME_MODES: { value: GameMode; label: string }[] = [
   { value: 'solo', label: 'Solo' },
   { value: 'head_to_head', label: 'Head to Head' },
   { value: 'all_teams', label: 'All Teams' },
-  { value: 'team_relay', label: 'Team Relay' },
 ]
 
-const TIMER_OPTIONS: { value: number | null; label: string }[] = [
-  { value: null, label: 'No timer' },
-  { value: 30, label: '30s' },
-  { value: 60, label: '60s' },
-  { value: 90, label: '90s' },
-  { value: 120, label: '2m' },
-]
+const TIMER_PRESETS = [30, 60, 90, 120]
 
-const getModeColor = (mode: GameMode) => {
-  if (mode === 'team_relay') return getTileColors('misc').stripeColor
-  return getTileColors(mode).stripeColor
-}
+const getModeColor = (mode: GameMode) => getTileColors(mode).stripeColor
 
-export default function ActivitiesTab({ activities }: { activities: Activity[] }) {
+type TimerState = 'idle' | 'running' | 'paused'
+
+export default function ActivitiesTab({ activities, teams }: { activities: Activity[]; teams: Team[] }) {
   const [title, setTitle] = useState('')
   const [gameMode, setGameMode] = useState<GameMode>('solo')
-  const [timerDuration, setTimerDuration] = useState<number | null>(null)
   const [pendingActivity, setPendingActivity] = useState<Activity | null>(null)
   const [pendingMode, setPendingMode] = useState<GameMode | null>(null)
+  const [pendingTeam, setPendingTeam] = useState<Team | null>(null)
+
+  // Standalone timer
+  const [timerPreset, setTimerPreset] = useState<number>(60)
+  const [customDuration, setCustomDuration] = useState<string>('')
+  const [timerState, setTimerState] = useState<TimerState>('idle')
+
+  const effectiveDuration = customDuration ? (parseInt(customDuration) || 0) : timerPreset
 
   const addActivity = async () => {
     if (!title.trim()) return
-    await supabase.from('activities').insert({
-      title: title.trim(),
-      game_mode: gameMode,
-    })
+    await supabase.from('activities').insert({ title: title.trim(), game_mode: gameMode })
     setTitle('')
   }
 
@@ -48,12 +44,7 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
     await supabase.channel('activity_display').send({
       type: 'broadcast',
       event: 'show_activity',
-      payload: {
-        title: activity.title,
-        color,
-        game_mode: activity.game_mode,
-        duration: timerDuration,
-      },
+      payload: { title: activity.title, color, game_mode: activity.game_mode },
     })
     setPendingActivity(null)
     setPendingMode(null)
@@ -62,38 +53,136 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
   const rollRandom = (mode: GameMode) => {
     const group = activities.filter(a => a.game_mode === mode)
     if (!group.length) return
-    const activity = group[Math.floor(Math.random() * group.length)]
-    setPendingActivity(activity)
+    setPendingActivity(group[Math.floor(Math.random() * group.length)])
     setPendingMode(mode)
+  }
+
+  const rollRandomTeam = () => {
+    if (!teams.length) return
+    setPendingTeam(teams[Math.floor(Math.random() * teams.length)])
+  }
+
+  const startTimer = async () => {
+    if (effectiveDuration <= 0) return
+    await supabase.channel('timer_control').send({
+      type: 'broadcast',
+      event: 'timer_start',
+      payload: { duration: effectiveDuration },
+    })
+    setTimerState('running')
+  }
+
+  const togglePause = async () => {
+    if (timerState === 'idle') return
+    const isPausing = timerState === 'running'
+    await supabase.channel('timer_control').send({
+      type: 'broadcast',
+      event: isPausing ? 'timer_pause' : 'timer_resume',
+      payload: {},
+    })
+    setTimerState(isPausing ? 'paused' : 'running')
+  }
+
+  const stopTimer = async () => {
+    if (timerState === 'idle') return
+    await supabase.channel('timer_control').send({
+      type: 'broadcast',
+      event: 'timer_stop',
+      payload: {},
+    })
+    setTimerState('idle')
   }
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Activities</h2>
 
-      {/* Timer selector */}
+      {/* ── Standalone Timer ── */}
       <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
         <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          ⏱ Activity Timer
+          ⏱ Timer
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {TIMER_OPTIONS.map(opt => (
+
+        {/* Duration presets + custom input */}
+        <div className="flex gap-2 flex-wrap mb-3">
+          {TIMER_PRESETS.map(sec => (
             <button
-              key={String(opt.value)}
-              onClick={() => setTimerDuration(opt.value)}
+              key={sec}
+              onClick={() => { setTimerPreset(sec); setCustomDuration('') }}
               className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${
-                timerDuration === opt.value
+                timerPreset === sec && !customDuration
                   ? 'bg-blue-600 border-blue-400 text-white'
                   : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-blue-500 hover:text-white'
               }`}
             >
-              {opt.label}
+              {sec >= 60 ? `${sec / 60}m` : `${sec}s`}
             </button>
           ))}
+          <input
+            type="number"
+            min={1}
+            value={customDuration}
+            onChange={e => setCustomDuration(e.target.value)}
+            placeholder="Custom (s)"
+            className={`w-28 bg-gray-700 text-white px-2 py-1.5 rounded text-sm border transition-colors ${
+              customDuration ? 'border-blue-400' : 'border-gray-600 focus:border-blue-500'
+            }`}
+          />
+        </div>
+
+        {/* Start / Pause / Stop controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={startTimer}
+            disabled={effectiveDuration <= 0}
+            className="bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+          >
+            ▶ Start
+          </button>
+          <button
+            onClick={togglePause}
+            disabled={timerState === 'idle'}
+            className="bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+          >
+            {timerState === 'paused' ? '▶ Resume' : '⏸ Pause'}
+          </button>
+          <button
+            onClick={stopTimer}
+            disabled={timerState === 'idle'}
+            className="bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+          >
+            ⏹ Stop
+          </button>
+          {timerState !== 'idle' && (
+            <span className={`text-xs font-semibold ml-1 ${
+              timerState === 'running' ? 'text-green-400' : 'text-yellow-400'
+            }`}>
+              {timerState === 'running' ? '● Running' : '⏸ Paused'}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Add form */}
+      {/* ── Random Team ── */}
+      <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          👥 Random Team
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={rollRandomTeam}
+            disabled={teams.length === 0}
+            className="bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+          >
+            🎲 Pick Random Team
+          </button>
+          {teams.length === 0 && (
+            <span className="text-xs text-gray-500 italic">No teams yet</span>
+          )}
+        </div>
+      </div>
+
+      {/* ── Add Activity form ── */}
       <div className="bg-gray-800 rounded-xl p-4 border border-gray-600 space-y-3">
         <h3 className="font-bold text-lg">Add Activity</h3>
         <div className="flex gap-3">
@@ -122,7 +211,7 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
         </div>
       </div>
 
-      {/* Activities grouped by game mode */}
+      {/* ── Activities grouped by game mode ── */}
       {activities.length === 0 && (
         <p className="text-gray-500 italic text-sm">No activities yet. Add one above.</p>
       )}
@@ -151,9 +240,6 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
                 onClick={() => broadcastActivity(activity)}
               >
                 <span className="text-sm font-semibold text-white">{activity.title}</span>
-                {timerDuration && (
-                  <span className="text-xs text-white/50 ml-1">⏱ {timerDuration}s</span>
-                )}
                 <button
                   onClick={e => { e.stopPropagation(); deleteActivity(activity.id) }}
                   className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
@@ -166,7 +252,42 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
         )
       })}
 
-      {/* Confirmation modal for random pick */}
+      {/* ── Random Team modal ── */}
+      {pendingTeam && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+          onClick={() => setPendingTeam(null)}
+        >
+          <div
+            className="max-w-sm w-full mx-4 rounded-2xl p-8 text-center border-2 border-purple-500 bg-gray-800 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-sm uppercase tracking-widest mb-3 text-purple-400">
+              Random Team
+            </div>
+            <div className="text-6xl mb-3">{pendingTeam.icon}</div>
+            <div className="text-2xl font-bold text-white mb-6">
+              {pendingTeam.name}
+            </div>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={rollRandomTeam}
+                className="px-4 py-2 rounded text-sm font-semibold bg-gray-600 hover:bg-gray-500 text-white"
+              >
+                🎲 Re-roll
+              </button>
+              <button
+                onClick={() => setPendingTeam(null)}
+                className="px-4 py-2 rounded text-sm font-semibold bg-purple-600 hover:bg-purple-500 text-white"
+              >
+                ✓ Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Confirmation modal for random pick ── */}
       {pendingActivity && pendingMode && (
         <div
           className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
@@ -177,19 +298,12 @@ export default function ActivitiesTab({ activities }: { activities: Activity[] }
             style={{ borderColor: getModeColor(pendingMode) }}
             onClick={e => e.stopPropagation()}
           >
-            <div
-              className="text-sm uppercase tracking-widest mb-3"
-              style={{ color: getModeColor(pendingMode) }}
-            >
+            <div className="text-sm uppercase tracking-widest mb-3" style={{ color: getModeColor(pendingMode) }}>
               Random {GAME_MODES.find(m => m.value === pendingMode)?.label} Activity
             </div>
-            <div className="text-2xl font-bold text-white mb-2">
+            <div className="text-2xl font-bold text-white mb-6">
               {pendingActivity.title}
             </div>
-            {timerDuration && (
-              <div className="text-sm text-gray-400 mb-6">⏱ {timerDuration}s timer</div>
-            )}
-            {!timerDuration && <div className="mb-6" />}
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => rollRandom(pendingMode)}

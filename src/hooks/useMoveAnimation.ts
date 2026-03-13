@@ -25,18 +25,22 @@ export function useMoveAnimation(
 
   // Detect new move events
   useEffect(() => {
-    // On the first load, just record existing events without animating
+    // On first render, mark all existing events as seen without animating.
+    // Always initialize immediately (even when events is empty) so the very
+    // first move event is not mistakenly swallowed.
     if (!initializedRef.current) {
-      if (events.length > 0) {
-        prevEventsRef.current = events
-        initializedRef.current = true
-      }
+      prevEventsRef.current = events
+      initializedRef.current = true
       return
     }
 
     const prev = prevEventsRef.current
     const newEvent = events.find(
-      e => e.event_type === 'move' && !prev.some(p => p.id === e.id)
+      e =>
+        e.event_type === 'move' &&
+        !prev.some(p => p.id === e.id) &&
+        // Skip position-swap events — they teleport instantly, no animation needed
+        !e.notes?.startsWith('Position swapped')
     )
     if (
       newEvent &&

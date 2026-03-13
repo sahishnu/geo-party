@@ -75,7 +75,7 @@ export default function AdminPanel() {
         {activeTab === 'teams'    && <TeamsTab teams={sortedTeams} />}
         {activeTab === 'board'    && <BoardTab tiles={tiles} config={config} />}
         {activeTab === 'cards'    && <CardDecksTab cards={cards} />}
-        {activeTab === 'activities' && <ActivitiesTab activities={activities} />}
+        {activeTab === 'activities' && <ActivitiesTab activities={activities} teams={sortedTeams} />}
         {activeTab === 'events'   && <EventLogTab events={events} teams={teams} />}
         {activeTab === 'settings' && <SettingsTab config={config} />}
       </div>

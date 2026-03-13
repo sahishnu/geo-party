@@ -11,9 +11,10 @@ interface Props {
   animatingTeamId?: string
   animatingTeam?: Team
   animationPosition?: number | null
+  hoveredTeamId?: string | null
 }
 
-export default function Board({ tiles, teams, config, animatingTeamId, animatingTeam, animationPosition }: Props) {
+export default function Board({ tiles, teams, config, animatingTeamId, animatingTeam, animationPosition, hoveredTeamId }: Props) {
   const n = config.tiles_per_side
   const totalTiles = getTileCount(n)
 
@@ -91,6 +92,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
               isCurrent={isCurrent}
               side={side}
               tileSize={tileSize}
+              hoveredTeamId={hoveredTeamId}
               style={{
                 gridColumn: col + 1,
                 gridRow: row + 1,
@@ -106,6 +108,7 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
           const { col, row } = getTileCoordinates(animationPosition, n)
           const left = col * tileSize + tileSize / 2
           const top = row * tileSize + tileSize / 2
+          const isHovered = hoveredTeamId === animatingTeam.id
           return (
             <motion.div
               key={animatingTeam.id}
@@ -113,7 +116,13 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
               transition={{ type: 'spring', stiffness: 400, damping: 35 }}
               style={{ position: 'absolute', zIndex: 50, pointerEvents: 'none' }}
             >
-              <div style={{ transform: 'translate(-50%, -50%)', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>
+              <div style={{
+                transform: `translate(-50%, -50%) scale(${isHovered ? 1.5 : 1})`,
+                filter: isHovered
+                  ? 'drop-shadow(0 0 10px rgba(255,255,255,0.9)) drop-shadow(0 4px 12px rgba(0,0,0,0.5))'
+                  : 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+                transition: 'transform 0.2s ease, filter 0.2s ease',
+              }}>
                 <TeamToken team={animatingTeam} size="lg" />
               </div>
             </motion.div>

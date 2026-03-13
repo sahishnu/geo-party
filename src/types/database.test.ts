@@ -37,7 +37,7 @@ describe('database types', () => {
 
   it('Card type has required fields', () => {
     const card: Card = {
-      id: '1', deck_type: 'chance', content: 'Go back 3 spaces', created_at: ''
+      id: '1', deck_type: 'chance', title: 'Move Back', content: 'Go back 3 spaces', created_at: ''
     }
     expect(card.deck_type).toBe('chance')
   })

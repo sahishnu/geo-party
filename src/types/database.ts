@@ -1,6 +1,6 @@
 export type TileType =
   | 'solo' | 'head_to_head' | 'all_teams' | 'misc'
-  | 'start' | 'jail' | 'pot' | 'pay_taxes' | 'chance' | 'random'
+  | 'start' | 'jail' | 'go_to_jail' | 'pot' | 'pay_taxes' | 'chance' | 'random'
 
 export type EventType =
   | 'move' | 'score_change' | 'pot_contribution' | 'pot_claim' | 'card_reveal'
@@ -54,11 +54,12 @@ export interface GameEvent {
 export interface Card {
   id: string
   deck_type: DeckType
+  title: string
   content: string
   created_at: string
 }
 
-export type GameMode = 'solo' | 'head_to_head' | 'all_teams' | 'team_relay'
+export type GameMode = 'solo' | 'head_to_head' | 'all_teams'
 
 export interface Activity {
   id: string

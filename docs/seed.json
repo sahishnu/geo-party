@@ -1,9 +1,10 @@
 {
   "settings": {
-    "game_name": "Geo Party",
+    "game_name": "Jeo Party",
     "tiles_per_side": 9,
-    "jail_penalty": 50,
-    "tax_penalty": 30
+    "jail_penalty": 100,
+    "tax_penalty": 50,
+    "starting_score": 100
   },
   "teams": [
     {
@@ -41,20 +42,20 @@
     {
       "position": 1,
       "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
-    },
-    {
-      "position": 2,
-      "label": "",
       "tile_type": "head_to_head",
       "color_group": "head_to_head"
     },
     {
-      "position": 3,
+      "position": 2,
       "label": "",
       "tile_type": "all_teams",
       "color_group": "all_teams"
+    },
+    {
+      "position": 3,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
     },
     {
       "position": 4,
@@ -65,20 +66,20 @@
     {
       "position": 5,
       "label": "",
-      "tile_type": "misc",
-      "color_group": "misc"
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
     },
     {
       "position": 6,
       "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
     },
     {
       "position": 7,
       "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "tile_type": "solo",
+      "color_group": "solo"
     },
     {
       "position": 8,
@@ -89,20 +90,20 @@
     {
       "position": 9,
       "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
-    },
-    {
-      "position": 10,
-      "label": "",
       "tile_type": "solo",
       "color_group": "solo"
     },
     {
+      "position": 10,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
       "position": 11,
       "label": "",
-      "tile_type": "misc",
-      "color_group": "misc"
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
     },
     {
       "position": 12,
@@ -113,20 +114,20 @@
     {
       "position": 13,
       "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "tile_type": "solo",
+      "color_group": "solo"
     },
     {
       "position": 14,
       "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
     },
     {
       "position": 15,
       "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
     },
     {
       "position": 16,
@@ -137,14 +138,14 @@
     {
       "position": 17,
       "label": "",
-      "tile_type": "misc",
-      "color_group": "misc"
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
     },
     {
       "position": 18,
       "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
     },
     {
       "position": 19,
@@ -167,19 +168,19 @@
     {
       "position": 22,
       "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "tile_type": "solo",
+      "color_group": "solo"
     },
     {
       "position": 23,
       "label": "",
-      "tile_type": "misc",
-      "color_group": "misc"
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
     },
     {
       "position": 24,
-      "label": "",
-      "tile_type": "jail",
+      "label": "Go to Jail",
+      "tile_type": "go_to_jail",
       "color_group": "orange"
     },
     {
@@ -191,14 +192,14 @@
     {
       "position": 26,
       "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
     },
     {
       "position": 27,
       "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
     },
     {
       "position": 28,
@@ -209,111 +210,142 @@
     {
       "position": 29,
       "label": "",
-      "tile_type": "misc",
-      "color_group": "misc"
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
     },
     {
       "position": 30,
       "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
     },
     {
       "position": 31,
       "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
+      "tile_type": "solo",
+      "color_group": "solo"
     }
   ],
   "cards": [
     {
       "deck_type": "chance",
-      "content": "Move forward 3 spaces"
-    },
-    {
-      "deck_type": "chance",
-      "content": "Move back 2 spaces"
-    },
-    {
-      "deck_type": "chance",
+      "title": "Jackpot!",
       "content": "Gain 100 points!"
     },
     {
       "deck_type": "chance",
+      "title": "Oops!",
       "content": "Lose 50 points"
     },
     {
       "deck_type": "chance",
-      "content": "Swap positions with the team in last place"
+      "title": "Musical Chairs",
+      "content": "Swap board positions with the team in last position"
     },
     {
       "deck_type": "chance",
-      "content": "Skip your next turn"
+      "title": "Score Swap",
+      "content": "Swap points with the team in last place"
     },
     {
       "deck_type": "chance",
-      "content": "Collect 25 points from every other team"
+      "title": "Top Trade",
+      "content": "Swap points with the team in first place"
     },
     {
       "deck_type": "chance",
+      "title": "Generous Move",
+      "content": "Give each team 10 of your points"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Payday",
+      "content": "Collect 10 points from every other team"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Fast Track",
       "content": "Go directly to Start — collect 50 bonus points"
     },
     {
       "deck_type": "chance",
+      "title": "Busted!",
       "content": "Go directly to Jail — do not pass Start"
     },
     {
       "deck_type": "chance",
+      "title": "Double Down",
       "content": "Double your points from your next activity"
     },
     {
       "deck_type": "chance",
-      "content": "Free pass: avoid your next penalty"
-    },
-    {
-      "deck_type": "chance",
+      "title": "Lucky Roll",
       "content": "Roll again!"
     }
   ],
   "activities": [
     {
-      "title": "Name 5 African countries in 15 seconds",
+      "title": "Brain Teasers",
       "game_mode": "solo"
     },
     {
-      "title": "Point to Brazil on a blank map",
+      "title": "Reverse Charades",
       "game_mode": "solo"
     },
     {
-      "title": "Name the capital of a random country",
+      "title": "Are You Smarter Than a 5th Grader?",
+      "game_mode": "solo"
+    },
+    {
+      "title": "America Says",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Chain Reaction",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Minesweeper",
       "game_mode": "head_to_head"
     },
     {
-      "title": "Flag identification speed round",
+      "title": "Mission Impossible",
       "game_mode": "head_to_head"
     },
     {
-      "title": "Guess the country from 3 clues",
+      "title": "Quiet Challenge",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Fruit by the Foot",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Team Pen Holding Challenge",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Guess & Sing That Tune",
       "game_mode": "all_teams"
     },
     {
-      "title": "Geography charades — act out a landmark",
+      "title": "Sit Down Number Challenge",
       "game_mode": "all_teams"
     },
     {
-      "title": "Relay: each teammate names a European country",
-      "game_mode": "team_relay"
+      "title": "Wheel of Fortune",
+      "game_mode": "all_teams"
     },
     {
-      "title": "Pin the city on the map — closest wins",
-      "game_mode": "solo"
+      "title": "The Price is Right",
+      "game_mode": "all_teams"
     },
     {
-      "title": "Name that river from a satellite photo",
-      "game_mode": "head_to_head"
+      "title": "Memory Tray",
+      "game_mode": "all_teams"
     },
     {
-      "title": "Draw a country's outline from memory",
+      "title": "Human Knot",
       "game_mode": "all_teams"
     }
   ]

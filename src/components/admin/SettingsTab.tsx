@@ -9,6 +9,7 @@ interface GameSeed {
     tiles_per_side?: number
     jail_penalty?: number
     tax_penalty?: number
+    starting_score?: number
   }
   teams?: {
     name: string
@@ -23,6 +24,7 @@ interface GameSeed {
   }[]
   cards?: {
     deck_type: DeckType
+    title?: string
     content: string
   }[]
   activities?: {
@@ -33,10 +35,10 @@ interface GameSeed {
 
 const VALID_TILE_TYPES: TileType[] = [
   'solo', 'head_to_head', 'all_teams', 'misc',
-  'start', 'jail', 'pot', 'pay_taxes', 'chance', 'random',
+  'start', 'jail', 'go_to_jail', 'pot', 'pay_taxes', 'chance', 'random',
 ]
 const VALID_DECK_TYPES: DeckType[] = ['chance', 'random']
-const VALID_GAME_MODES: GameMode[] = ['solo', 'head_to_head', 'all_teams', 'team_relay']
+const VALID_GAME_MODES: GameMode[] = ['solo', 'head_to_head', 'all_teams']
 
 function validateSeed(data: unknown): { valid: true; seed: GameSeed } | { valid: false; error: string } {
   if (!data || typeof data !== 'object') return { valid: false, error: 'JSON must be an object' }
@@ -92,8 +94,9 @@ async function importSeed(seed: GameSeed, configId: string) {
 
   // Insert teams
   if (seed.teams?.length) {
+    const startingScore = seed.settings?.starting_score ?? 0
     await supabase.from('teams').insert(
-      seed.teams.map((t, i) => ({ name: t.name, icon: t.icon, turn_order: i, score: 0, position: 0 }))
+      seed.teams.map((t, i) => ({ name: t.name, icon: t.icon, turn_order: i, score: startingScore, position: 0 }))
     )
   }
 

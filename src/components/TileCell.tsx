@@ -1,3 +1,4 @@
+import { CircleHelp } from "lucide-react";
 import type { Tile, Team } from "../types/database";
 import type { TileSide } from "../utils/boardGeometry";
 import { getTileColors } from "../utils/tileColors";
@@ -25,6 +26,7 @@ interface Props {
   isCurrent?: boolean;
   side?: TileSide;
   tileSize?: number;
+  hoveredTeamId?: string | null;
   style?: React.CSSProperties;
 }
 
@@ -37,6 +39,7 @@ export default function TileCell({
   isCurrent,
   side = "bottom",
   tileSize = 80,
+  hoveredTeamId,
   style,
 }: Props) {
   const colors = getTileColors(tile.tile_type);
@@ -115,11 +118,24 @@ export default function TileCell({
               zIndex: 20,
             }}
           >
-            {teams.map((team, i) => (
-              <div key={team.id} style={{ marginLeft: i > 0 ? -5 : 0 }}>
-                <TeamToken team={team} size="sm" />
-              </div>
-            ))}
+            {teams.map((team, i) => {
+              const isHovered = hoveredTeamId === team.id;
+              return (
+                <div
+                  key={team.id}
+                  style={{
+                    marginLeft: i > 0 ? -5 : 0,
+                    transform: isHovered ? "scale(1.7) translateY(-4px)" : "scale(1)",
+                    filter: isHovered ? "drop-shadow(0 0 6px rgba(255,255,255,0.95))" : "none",
+                    transition: "transform 0.2s ease, filter 0.2s ease",
+                    zIndex: isHovered ? 30 : "auto",
+                    position: "relative",
+                  }}
+                >
+                  <TeamToken team={team} size="sm" />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -128,6 +144,8 @@ export default function TileCell({
 
   // ── No-stripe tiles (e.g. Chance, Pay Taxes) ──────────────────────────────
   if (colors.noStripe) {
+    const isChance = tile.tile_type === "chance";
+    const iconSize = Math.round(tileSize * 0.35);
     return (
       <div
         style={{
@@ -139,25 +157,39 @@ export default function TileCell({
         }}
       >
         <span style={indexStyle}>{tile.position}</span>
-        {/* Label — absolutely centered, never displaced by tokens */}
-        <span
+        {/* Icon + Label — absolutely centered, never displaced by tokens */}
+        <div
           style={{
             position: "absolute",
             inset: "3px 3px 22px",
-            fontSize,
-            fontWeight: 700,
-            color: "#1a1a2a",
-            textAlign: "center",
-            lineHeight: 1.25,
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
-            wordBreak: "break-word",
+            gap: 2,
           }}
         >
-          {tile.label}
-        </span>
+          {isChance && (
+            <CircleHelp
+              size={iconSize}
+              color={colors.stripeColor}
+              strokeWidth={2}
+            />
+          )}
+          <span
+            style={{
+              fontSize,
+              fontWeight: 700,
+              color: "#1a1a2a",
+              textAlign: "center",
+              lineHeight: 1.25,
+              wordBreak: "break-word",
+            }}
+          >
+            {tile.label}
+          </span>
+        </div>
 
         {/* Tokens — pinned to bottom */}
         {teams.length > 0 && (
@@ -174,11 +206,24 @@ export default function TileCell({
               zIndex: 20,
             }}
           >
-            {teams.map((team, i) => (
-              <div key={team.id} style={{ marginLeft: i > 0 ? -4 : 0 }}>
-                <TeamToken team={team} size="sm" />
-              </div>
-            ))}
+            {teams.map((team, i) => {
+              const isHovered = hoveredTeamId === team.id;
+              return (
+                <div
+                  key={team.id}
+                  style={{
+                    marginLeft: i > 0 ? -4 : 0,
+                    transform: isHovered ? "scale(1.7) translateY(-4px)" : "scale(1)",
+                    filter: isHovered ? "drop-shadow(0 0 6px rgba(255,255,255,0.95))" : "none",
+                    transition: "transform 0.2s ease, filter 0.2s ease",
+                    zIndex: isHovered ? 30 : "auto",
+                    position: "relative",
+                  }}
+                >
+                  <TeamToken team={team} size="sm" />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -284,11 +329,24 @@ export default function TileCell({
               zIndex: 20,
             }}
           >
-            {teams.map((team, i) => (
-              <div key={team.id} style={{ marginLeft: i > 0 ? -4 : 0 }}>
-                <TeamToken team={team} size="sm" />
-              </div>
-            ))}
+            {teams.map((team, i) => {
+              const isHovered = hoveredTeamId === team.id;
+              return (
+                <div
+                  key={team.id}
+                  style={{
+                    marginLeft: i > 0 ? -4 : 0,
+                    transform: isHovered ? "scale(1.7) translateY(-4px)" : "scale(1)",
+                    filter: isHovered ? "drop-shadow(0 0 6px rgba(255,255,255,0.95))" : "none",
+                    transition: "transform 0.2s ease, filter 0.2s ease",
+                    zIndex: isHovered ? 30 : "auto",
+                    position: "relative",
+                  }}
+                >
+                  <TeamToken team={team} size="sm" />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

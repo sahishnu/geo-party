@@ -6,21 +6,24 @@ interface Props {
   team: Team;
   isCurrentTurn: boolean;
   rank?: number;
+  onHover?: (id: string | null) => void;
 }
 
-export default function PlayerCard({ team, isCurrentTurn, rank }: Props) {
+export default function PlayerCard({ team, isCurrentTurn, rank, onHover }: Props) {
   const color = getTeamColor(team.turn_order);
   const colorLight = getTeamColorLight(team.turn_order);
 
   return (
     <div
-      className="border border-gray-200 relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-transform duration-300"
+      className="border border-gray-200 relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-all duration-200 cursor-default"
       style={{
         boxShadow: isCurrentTurn
           ? `0 0 0 2px ${color}, 0 4px 16px ${colorLight}`
           : "0 2px 8px rgba(0,0,0,0.08)",
         transform: isCurrentTurn ? "scale(1.04)" : "scale(1)",
       }}
+      onMouseEnter={() => onHover?.(team.id)}
+      onMouseLeave={() => onHover?.(null)}
     >
       {/* Active turn badge */}
       {isCurrentTurn && (

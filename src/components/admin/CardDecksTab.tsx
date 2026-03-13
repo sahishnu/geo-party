@@ -19,11 +19,11 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
     await supabase.from('cards').delete().eq('id', id)
   }
 
-  const broadcastCard = async (content: string) => {
+  const broadcastCard = async (card: Card) => {
     await supabase.channel('card_display').send({
       type: 'broadcast',
       event: 'show_card',
-      payload: { content },
+      payload: { title: card.title, content: card.content },
     })
     setPendingCard(null)
   }
@@ -64,9 +64,12 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
             <li
               key={card.id}
               className="flex gap-2 items-start text-sm bg-gray-700 px-3 py-2 rounded cursor-pointer hover:ring-2 hover:ring-indigo-400/50 transition-all"
-              onClick={() => broadcastCard(card.content)}
+              onClick={() => broadcastCard(card)}
             >
-              <span className="flex-1">{card.content}</span>
+              <span className="flex-1">
+                {card.title && <span className="font-semibold text-indigo-300">{card.title} — </span>}
+                {card.content}
+              </span>
               <button
                 onClick={e => { e.stopPropagation(); deleteCard(card.id) }}
                 className="text-red-400 shrink-0 hover:text-red-300"
@@ -94,7 +97,10 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
             <div className="text-sm uppercase tracking-widest mb-3 text-indigo-400">
               Random Chance Card
             </div>
-            <div className="text-2xl font-bold text-white mb-6">
+            {pendingCard.title && (
+              <div className="text-xl font-bold text-indigo-300 mb-1">{pendingCard.title}</div>
+            )}
+            <div className="text-lg text-white mb-6">
               {pendingCard.content}
             </div>
             <div className="flex gap-3 justify-center">
@@ -111,7 +117,7 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
                 Cancel
               </button>
               <button
-                onClick={() => broadcastCard(pendingCard.content)}
+                onClick={() => broadcastCard(pendingCard)}
                 className="px-4 py-2 rounded text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white"
               >
                 ✅ Confirm

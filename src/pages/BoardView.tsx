@@ -17,7 +17,6 @@ type ActiveActivity = {
   title: string;
   color: string;
   game_mode: string;
-  duration?: number | null;
 };
 
 function FlipCard({
@@ -26,6 +25,7 @@ function FlipCard({
   bgColor,
   borderColor,
   frontLabel,
+  frontTitle,
   frontSubtitle,
   onDismiss,
 }: {
@@ -34,15 +34,16 @@ function FlipCard({
   bgColor: string;
   borderColor: string;
   frontLabel: string;
+  frontTitle?: string;
   frontSubtitle: string;
   onDismiss: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => setFlipped(true), 1200);
-  //   return () => clearTimeout(timer);
-  // }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setFlipped(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div
@@ -135,17 +136,20 @@ function FlipCard({
           >
             {frontSubtitle}
           </div>
+          {frontTitle && (
+            <div
+              className="text-2xl font-extrabold text-center mb-3"
+              style={{ color: bgColor }}
+            >
+              {frontTitle}
+            </div>
+          )}
           <div
-            className="text-3xl font-bold leading-snug text-center"
+            className={`font-bold leading-snug text-center ${frontTitle ? 'text-xl' : 'text-3xl'}`}
             style={{ color: "#1a1a2e" }}
           >
             {frontLabel}
           </div>
-          {/* Bottom color strip */}
-          {/* <div
-            className="absolute bottom-0 left-0 right-0 h-5"
-            style={{ backgroundColor: bgColor }}
-          /> */}
         </div>
       </motion.div>
     </div>
@@ -158,9 +162,12 @@ export default function BoardView() {
   const { tiles } = useTiles();
   const { events } = useEvents(50);
   const [connected, setConnected] = useState(true);
+  const [hoveredTeamId, setHoveredTeamId] = useState<string | null>(null);
   const [activeActivity, setActiveActivity] = useState<ActiveActivity | null>(null);
-  const [revealedCard, setRevealedCard] = useState<string | null>(null);
+  const [revealedCard, setRevealedCard] = useState<{ title: string; content: string } | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [timerPaused, setTimerPaused] = useState(false);
+  const [timerTotal, setTimerTotal] = useState<number | null>(null);
   const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
 
   // Confetti: track which event IDs we've already processed
@@ -179,7 +186,6 @@ export default function BoardView() {
       .channel('activity_display')
       .on('broadcast', { event: 'show_activity' }, ({ payload }) => {
         setActiveActivity(payload);
-        setTimeLeft(payload.duration ?? null);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -189,7 +195,26 @@ export default function BoardView() {
     const channel = supabase
       .channel('card_display')
       .on('broadcast', { event: 'show_card' }, ({ payload }) => {
-        setRevealedCard(payload.content);
+        setRevealedCard({ title: payload.title ?? '', content: payload.content });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('timer_control')
+      .on('broadcast', { event: 'timer_start' }, ({ payload }) => {
+        setTimeLeft(payload.duration);
+        setTimerTotal(payload.duration);
+        setTimerPaused(false);
+      })
+      .on('broadcast', { event: 'timer_pause' }, () => setTimerPaused(true))
+      .on('broadcast', { event: 'timer_resume' }, () => setTimerPaused(false))
+      .on('broadcast', { event: 'timer_stop' }, () => {
+        setTimeLeft(null);
+        setTimerTotal(null);
+        setTimerPaused(false);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -216,22 +241,12 @@ export default function BoardView() {
     }
   }, [events]);
 
-  // Activity countdown tick
+  // Countdown tick — pauses when timerPaused is true
   useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0) return;
+    if (timeLeft === null || timeLeft <= 0 || timerPaused) return;
     const t = setTimeout(() => setTimeLeft(prev => (prev !== null ? prev - 1 : null)), 1000);
     return () => clearTimeout(t);
-  }, [timeLeft]);
-
-  // Auto-close activity 2s after timer hits 0
-  useEffect(() => {
-    if (timeLeft !== 0) return;
-    const t = setTimeout(() => {
-      setActiveActivity(null);
-      setTimeLeft(null);
-    }, 2000);
-    return () => clearTimeout(t);
-  }, [timeLeft]);
+  }, [timeLeft, timerPaused]);
 
   if (configLoading || !config) {
     return (
@@ -263,10 +278,9 @@ export default function BoardView() {
   const boardPx = n * tileSize;
   const camera = getCameraTransform(isAnimating ? currentPosition : null, n, tileSize, boardPx);
 
-  const activityDuration = activeActivity?.duration ?? null;
-  const timerPercent = activityDuration && timeLeft !== null
-    ? Math.max(0, timeLeft / activityDuration)
-    : null;
+  const timerPercent = timerTotal && timeLeft !== null
+    ? Math.max(0, timeLeft / timerTotal)
+    : 1;
   const isTimeUp = timeLeft === 0;
 
   return (
@@ -293,6 +307,7 @@ export default function BoardView() {
             team={team}
             isCurrentTurn={team.id === config.current_team_id}
             rank={scoreRankMap.get(team.id)}
+            onHover={setHoveredTeamId}
           />
         ))}
 
@@ -314,6 +329,7 @@ export default function BoardView() {
                 animatingTeamId={animatingTeam?.id}
                 animatingTeam={animatingTeam ?? undefined}
                 animationPosition={currentPosition}
+                hoveredTeamId={hoveredTeamId}
               />
             </motion.div>
           ) : (
@@ -338,7 +354,8 @@ export default function BoardView() {
           backSubtitle="Chance Card"
           bgColor="#4338CA"
           borderColor="#818CF8"
-          frontLabel={revealedCard}
+          frontLabel={revealedCard.content}
+          frontTitle={revealedCard.title || undefined}
           frontSubtitle="Chance Card"
           onDismiss={() => setRevealedCard(null)}
         />
@@ -353,30 +370,29 @@ export default function BoardView() {
           borderColor={activeActivity.color + 'AA'}
           frontLabel={activeActivity.title}
           frontSubtitle={activeActivity.game_mode.replace(/_/g, ' ')}
-          onDismiss={() => { setActiveActivity(null); setTimeLeft(null); }}
+          onDismiss={() => setActiveActivity(null)}
         />
       )}
 
-      {/* ── Activity countdown timer (floats above FlipCard) ── */}
-      {activeActivity && activityDuration && (
+      {/* ── Countdown timer (independent of activities) ── */}
+      {timeLeft !== null && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] pointer-events-none">
-          <div
-            className="rounded-2xl px-8 py-4 text-center shadow-2xl min-w-48"
-            style={{ backgroundColor: activeActivity.color + 'EE', border: `3px solid ${activeActivity.color}` }}
-          >
+          <div className="rounded-2xl px-8 py-4 text-center shadow-2xl min-w-48 bg-gray-900/95 border-2 border-white/20">
             {isTimeUp ? (
               <div className="text-3xl font-extrabold text-white animate-pulse">TIME'S UP!</div>
             ) : (
               <>
-                <div className="text-5xl font-extrabold text-white tabular-nums leading-none mb-2">
-                  {timeLeft}
+                <div className={`text-5xl font-extrabold tabular-nums leading-none mb-2 ${timerPaused ? 'text-yellow-300' : 'text-white'}`}>
+                  {timerPaused ? '⏸' : timeLeft}
                 </div>
-                <div className="h-2.5 rounded-full bg-black/30 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-white/80 transition-all duration-1000 ease-linear"
-                    style={{ width: `${(timerPercent ?? 1) * 100}%` }}
-                  />
-                </div>
+                {!timerPaused && (
+                  <div className="h-2.5 rounded-full bg-white/20 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-white/80 transition-all duration-1000 ease-linear"
+                      style={{ width: `${timerPercent * 100}%` }}
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>
