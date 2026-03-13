@@ -160,7 +160,6 @@ export default function BoardView() {
   const [connected, setConnected] = useState(true);
   const [activeActivity, setActiveActivity] = useState<ActiveActivity | null>(null);
   const [revealedCard, setRevealedCard] = useState<string | null>(null);
-  const [leaderboardMode, setLeaderboardMode] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
 
@@ -247,9 +246,13 @@ export default function BoardView() {
 
   const sortedByTurnOrder = [...teams].sort((a, b) => a.turn_order - b.turn_order);
   const sortedByScore = [...teams].sort((a, b) => b.score - a.score);
-  const displayTeams = leaderboardMode ? sortedByScore : sortedByTurnOrder;
   const teamMap = new Map<string, Team>(teams.map((t) => [t.id, t]));
-  const scoreRankMap = new Map<string, number>(sortedByScore.map((t, i) => [t.id, i + 1]));
+  const scoreRankMap = new Map<string, number>();
+  let currentRank = 1;
+  for (let i = 0; i < sortedByScore.length; i++) {
+    if (i > 0 && sortedByScore[i].score < sortedByScore[i - 1].score) currentRank = i + 1;
+    scoreRankMap.set(sortedByScore[i].id, currentRank);
+  }
 
   const n = config.tiles_per_side;
   const tileSize = Math.min(
@@ -284,12 +287,12 @@ export default function BoardView() {
 
       {/* ── Player Card Strip ── */}
       <div className="flex items-center gap-3 px-5 pt-4 pb-3 flex-wrap shrink-0">
-        {displayTeams.map((team) => (
+        {sortedByTurnOrder.map((team) => (
           <PlayerCard
             key={team.id}
             team={team}
             isCurrentTurn={team.id === config.current_team_id}
-            rank={leaderboardMode ? scoreRankMap.get(team.id) : undefined}
+            rank={scoreRankMap.get(team.id)}
           />
         ))}
 
@@ -316,17 +319,6 @@ export default function BoardView() {
           </div>
         </div>
 
-        {/* Leaderboard toggle */}
-        <button
-          onClick={() => setLeaderboardMode(m => !m)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm shadow-sm border transition-colors ${
-            leaderboardMode
-              ? 'bg-amber-400 text-amber-900 border-amber-500'
-              : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
-          }`}
-        >
-          🏆 {leaderboardMode ? 'Leaderboard' : 'Standings'}
-        </button>
       </div>
 
       {/* ── Board + Event Log ── */}
