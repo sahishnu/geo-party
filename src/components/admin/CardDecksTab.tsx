@@ -59,7 +59,7 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
             className="bg-gray-600 hover:bg-gray-500 text-white px-3 py-2 rounded text-sm">Add</button>
         </div>
 
-        <ul className="space-y-1 max-h-48 overflow-y-auto">
+        <ul className="space-y-1">
           {chanceCards.map(card => (
             <li
               key={card.id}

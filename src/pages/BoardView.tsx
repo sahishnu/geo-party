@@ -57,7 +57,7 @@ function FlipCard({
       <motion.div
         className="relative"
         style={{
-          width: "min(320px, 85vw)",
+          width: "min(400px, 90vw)",
           aspectRatio: "2.5 / 3.5",
           transformStyle: "preserve-3d",
         }}
@@ -100,14 +100,14 @@ function FlipCard({
           />
           <div className="relative z-10 text-center flex flex-col items-center justify-between h-full my-8">
             <div
-              className="text-xl font-bold uppercase tracking-[0.25em] -scale-100"
+              className="text-2xl font-bold uppercase tracking-[0.25em] -scale-100"
               style={{ color: bgColor }}
             >
               {backSubtitle}
             </div>
-            <div className="text-7xl mb-3">{backLabel}</div>
+            <div className="text-8xl mb-3">{backLabel}</div>
             <div
-              className="text-xl font-bold uppercase tracking-[0.25em]"
+              className="text-2xl font-bold uppercase tracking-[0.25em]"
               style={{ color: bgColor }}
             >
               {backSubtitle}
@@ -131,21 +131,21 @@ function FlipCard({
             style={{ backgroundColor: bgColor }}
           /> */}
           <div
-            className="text-xs font-bold uppercase tracking-[0.25em] mb-4"
+            className="text-sm font-bold uppercase tracking-[0.25em] mb-4"
             style={{ color: bgColor }}
           >
             {frontSubtitle}
           </div>
           {frontTitle && (
             <div
-              className="text-2xl font-extrabold text-center mb-3"
+              className="text-3xl font-extrabold text-center mb-3"
               style={{ color: bgColor }}
             >
               {frontTitle}
             </div>
           )}
           <div
-            className={`font-bold leading-snug text-center ${frontTitle ? 'text-xl' : 'text-3xl'}`}
+            className={`font-bold leading-snug text-center ${frontTitle ? 'text-2xl' : 'text-4xl'}`}
             style={{ color: "#1a1a2e" }}
           >
             {frontLabel}
