@@ -209,10 +209,56 @@ export default function Board({ tiles, teams, config, animatingTeamId, animating
                 textTransform: 'uppercase',
               }}
             >
-                {config.game_description || 'Board Game'}
-              </div>
+              {config.game_description || 'Board Game'}
+            </div>
+
+          </div>
+
+          {/* Mafat Na Paisa — Pot card, bottom-right of center */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 76.8,
+              right: 16.84,
+              transform: 'rotate(-45deg)',
+              background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)',
+              border: '2px solid #F59E0B',
+              borderRadius: 8.92,
+              padding: '16px 8px',
+              textAlign: 'center',
+              boxShadow: config.pot_total > 0
+                ? '0 0 10px rgba(245,158,11,0.4), 0 2px 8px rgba(0,0,0,0.15)'
+                : '0 2px 6px rgba(0,0,0,0.12)',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: '"Nunito", sans-serif',
+                fontWeight: 700,
+                fontSize: 16.93,
+                color: '#92400e',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                lineHeight: 1,
+                marginBottom: 4,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              💰 Mafat Na Paisa
+            </div>
+            <div
+              style={{
+                fontFamily: '"Nunito", sans-serif',
+                fontWeight: 900,
+                fontSize: 48.93,
+                color: config.pot_total > 0 ? '#d97706' : '#c4a468',
+                lineHeight: 1,
+              }}
+            >
+              {config.pot_total.toLocaleString()}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -296,29 +296,6 @@ export default function BoardView() {
           />
         ))}
 
-        {/* Pot card — inline, same size as player cards */}
-        <div
-          className="border border-amber-300 relative flex items-center gap-3 rounded-2xl px-8 py-3 shadow-md"
-          style={{
-            background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
-            boxShadow:
-              config.pot_total > 0
-                ? "0 0 12px rgba(245, 158, 11, 0.3), 0 2px 8px rgba(0,0,0,0.08)"
-                : "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <span className="text-3xl">🪙</span>
-          <div className="min-w-0">
-            <div className="font-extrabold text-amber-700 truncate text-md leading-tight">
-              Pot
-            </div>
-            <div className="font-extrabold text-2xl leading-tight tabular-nums text-amber-600">
-              {config.pot_total.toLocaleString()}
-              <span className="text-xs font-semibold text-amber-400 ml-1">pts</span>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       {/* ── Board + Event Log ── */}
