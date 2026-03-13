@@ -81,6 +81,17 @@ interface Props {
 const BORDER = "1px solid #1a1a2a";
 const BODY_BG = "#FFFFFF";
 
+// Short Gujarat town/village/city names for tile stripe decoration
+const GUJARAT_NAMES = [
+  "Surat", "Borivali", "Rajkot", "Bhuj", "Andheri",
+  "Vapi", "Dadar", "Morbi", "Diu", "Bandra",
+  "Godhra", "Dahod", "Veraval", "Dwarka", "Mandvi",
+  "Worli", "Mahuva", "Colaba", "Jetpur", "Gondal",
+  "Juhu", "Una", "Modasa", "Malad", "Visnagar",
+  "Parel", "Sanand", "Valsad", "Kurla", "Bardoli",
+  "Thane", "Karjan",
+];
+
 export default function TileCell({
   tile,
   teams,
@@ -319,6 +330,10 @@ export default function TileCell({
       ? "row"
       : "row-reverse";
 
+  const gujaratName = GUJARAT_NAMES[tile.position % GUJARAT_NAMES.length];
+  const stripeFontSize = Math.max(5, Math.round(stripeThickness * 0.34));
+  const isVerticalText = side === "left" || side === "right";
+
   return (
     <div
       style={{
@@ -335,8 +350,33 @@ export default function TileCell({
       <span style={indexStyle}>{tile.position}</span>
       {/* Colored stripe on inner edge */}
       <div
-        style={{ ...stripeStyle, backgroundColor: colors.stripeColor }}
-      />
+        style={{
+          ...stripeStyle,
+          backgroundColor: colors.stripeColor,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
+        <span
+          style={{
+            fontSize: stripeFontSize,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.35)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            userSelect: "none",
+            ...(isVerticalText
+              ? { writingMode: "vertical-rl", textOrientation: "mixed" }
+              : {}),
+          }}
+        >
+          {gujaratName}
+        </span>
+      </div>
 
       {/* Tile body */}
       <div
