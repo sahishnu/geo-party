@@ -83,7 +83,7 @@
     },
     {
       "position": 8,
-      "label": "",
+      "label": "Jail",
       "tile_type": "jail",
       "color_group": "orange"
     },
@@ -107,7 +107,7 @@
     },
     {
       "position": 12,
-      "label": "Taxes",
+      "label": "Pay Taxes",
       "tile_type": "pay_taxes",
       "color_group": "pink"
     },
@@ -203,7 +203,7 @@
     },
     {
       "position": 28,
-      "label": "Taxes",
+      "label": "Pay Taxes",
       "tile_type": "pay_taxes",
       "color_group": "pink"
     },

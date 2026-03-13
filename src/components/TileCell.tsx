@@ -145,6 +145,7 @@ export default function TileCell({
   // ── No-stripe tiles (e.g. Chance, Pay Taxes) ──────────────────────────────
   if (colors.noStripe) {
     const isChance = tile.tile_type === "chance";
+    const isTaxes = tile.tile_type === "pay_taxes";
     const iconSize = Math.round(tileSize * 0.35);
     return (
       <div
@@ -176,6 +177,9 @@ export default function TileCell({
               color={colors.stripeColor}
               strokeWidth={2}
             />
+          )}
+          {isTaxes && (
+            <span style={{ fontSize: iconSize, lineHeight: 1 }}>🪙</span>
           )}
           <span
             style={{

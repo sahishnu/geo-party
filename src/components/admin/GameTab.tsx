@@ -113,6 +113,7 @@ export default function GameTab({ teams, tiles, config }: Props) {
     if (tile.tile_type === 'jail') {
       await applyPenaltyToPot(team, config.jail_penalty, 'Jail penalty')
     } else if (tile.tile_type === 'go_to_jail') {
+      await applyPenaltyToPot(team, config.jail_penalty, 'Jail penalty')
       await sendToJail(team)
     } else if (tile.tile_type === 'pay_taxes') {
       setPendingTax({ team, amount: config.tax_penalty, reason: 'Tax penalty' })
