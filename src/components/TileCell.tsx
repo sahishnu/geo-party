@@ -51,6 +51,27 @@ function DotPattern({ type, size, color = "#1a1a2a" }: { type: string; size: num
     );
   }
 
+  if (type === "rainbow") {
+    const r = size * 0.28;
+    const dotColors = ["#DC2626", "#2563EB", "#16A34A", "#DC2626", "#2563EB", "#16A34A"];
+    return (
+      <svg width={size} height={size}>
+        {dotColors.map((c, i) => {
+          const angle = (Math.PI * 2 * i) / dotColors.length - Math.PI / 2;
+          return (
+            <circle
+              key={i}
+              cx={cx + r * Math.cos(angle)}
+              cy={cy + r * Math.sin(angle)}
+              r={dotR}
+              fill={c}
+            />
+          );
+        })}
+      </svg>
+    );
+  }
+
   return null;
 }
 
@@ -102,7 +123,7 @@ export default function TileCell({
   style,
 }: Props) {
   const colors = getTileColors(tile.tile_type);
-  const hasDots = tile.tile_type === "solo" || tile.tile_type === "head_to_head" || tile.tile_type === "all_teams";
+  const hasDots = tile.tile_type === "solo" || tile.tile_type === "head_to_head" || tile.tile_type === "all_teams" || tile.tile_type === "rainbow";
   const fontSize = Math.max(7, Math.round(tileSize * 0.16));
   const currentOutline = isCurrent
     ? { outline: "2.5px solid #F59E0B", outlineOffset: "-2px", zIndex: 10 }
@@ -352,7 +373,11 @@ export default function TileCell({
       <div
         style={{
           ...stripeStyle,
-          backgroundColor: colors.stripeColor,
+          ...(colors.stripeColor === "rainbow"
+            ? { background: isHorizontalStripe
+                ? "linear-gradient(to right, #DC2626, #2563EB, #16A34A)"
+                : "linear-gradient(to bottom, #DC2626, #2563EB, #16A34A)" }
+            : { backgroundColor: colors.stripeColor }),
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

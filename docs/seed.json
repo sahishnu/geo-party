@@ -42,44 +42,44 @@
     {
       "position": 1,
       "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
-    },
-    {
-      "position": 2,
-      "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
-    },
-    {
-      "position": 3,
-      "label": "",
       "tile_type": "solo",
       "color_group": "solo"
     },
     {
+      "position": 2,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 3,
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
       "position": 4,
+      "label": "",
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
+    },
+    {
+      "position": 5,
       "label": "Chance",
       "tile_type": "chance",
       "color_group": "indigo"
     },
     {
-      "position": 5,
-      "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
-    },
-    {
       "position": 6,
-      "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
-    },
-    {
-      "position": 7,
       "label": "",
       "tile_type": "solo",
       "color_group": "solo"
+    },
+    {
+      "position": 7,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
     },
     {
       "position": 8,
@@ -90,32 +90,32 @@
     {
       "position": 9,
       "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
-    },
-    {
-      "position": 10,
-      "label": "",
       "tile_type": "head_to_head",
       "color_group": "head_to_head"
     },
     {
-      "position": 11,
+      "position": 10,
       "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
     },
     {
-      "position": 12,
+      "position": 11,
       "label": "Pay Tax",
       "tile_type": "pay_taxes",
       "color_group": "pink"
     },
     {
-      "position": 13,
+      "position": 12,
       "label": "",
       "tile_type": "solo",
       "color_group": "solo"
+    },
+    {
+      "position": 13,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
     },
     {
       "position": 14,
@@ -125,9 +125,9 @@
     },
     {
       "position": 15,
-      "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
     },
     {
       "position": 16,
@@ -137,9 +137,9 @@
     },
     {
       "position": 17,
-      "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
     },
     {
       "position": 18,
@@ -150,32 +150,32 @@
     {
       "position": 19,
       "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
     },
     {
       "position": 20,
-      "label": "Chance",
-      "tile_type": "chance",
-      "color_group": "indigo"
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
     },
     {
       "position": 21,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 22,
       "label": "",
       "tile_type": "all_teams",
       "color_group": "all_teams"
     },
     {
-      "position": 22,
-      "label": "",
-      "tile_type": "solo",
-      "color_group": "solo"
-    },
-    {
       "position": 23,
-      "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
     },
     {
       "position": 24,
@@ -185,33 +185,33 @@
     },
     {
       "position": 25,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 26,
       "label": "",
       "tile_type": "solo",
       "color_group": "solo"
     },
     {
-      "position": 26,
-      "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
-    },
-    {
       "position": 27,
-      "label": "",
-      "tile_type": "all_teams",
-      "color_group": "all_teams"
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
     },
     {
       "position": 28,
-      "label": "Pay Tax",
-      "tile_type": "pay_taxes",
-      "color_group": "pink"
+      "label": "",
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
     },
     {
       "position": 29,
-      "label": "",
-      "tile_type": "head_to_head",
-      "color_group": "head_to_head"
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
     },
     {
       "position": 30,
@@ -229,13 +229,13 @@
   "cards": [
     {
       "deck_type": "chance",
-      "title": "Jackpot!",
+      "title": "It's your birthday!",
       "content": "Gain 100 points!"
     },
     {
       "deck_type": "chance",
-      "title": "Oops!",
-      "content": "Lose 50 points"
+      "title": "Pay Taxes!",
+      "content": "Pay 50 points in taxes"
     },
     {
       "deck_type": "chance",
@@ -281,6 +281,56 @@
       "deck_type": "chance",
       "title": "Lucky Roll",
       "content": "Roll again!"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Robin Hood",
+      "content": "Steal 50 points from the team in 1st place and give them to the team in last place"
+    },
+    {
+      "deck_type": "chance",
+      "title": "All In!",
+      "content": "Bet if the sum of your 2 dice rolls is above or below 7. If you're right, double your points. If you're wrong, lose half your points. On exactly 7, you must reroll."
+    },
+    {
+      "deck_type": "chance",
+      "title": "Jackpot!",
+      "content": "Gain points equal to your current board position × 10"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Point Pirate",
+      "content": "Steal 25 points from the team directly ahead of you on the board"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Earthquake!",
+      "content": "ALL teams move to random board positions"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Mirror Mirror",
+      "content": "Choose any team — swap your board position with theirs"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Hot Potato",
+      "content": "Pass this card to another team — they lose 30 points"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Communism",
+      "content": "All teams' points are pooled and redistributed equally"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Cursed Dice",
+      "content": "You only roll 1 dice next turn"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Enchanted Dice",
+      "content": "You roll only 1 dice next turn but get to choose the value of the 2nd dice from 1–6"
     }
   ],
   "activities": [

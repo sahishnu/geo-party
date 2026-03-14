@@ -21,6 +21,7 @@ const COLOR_MAP: Record<TileType, TileColors> = {
   pay_taxes: { bg: 'bg-pink-700', text: 'text-white', border: 'border-pink-500', label: 'Pay Taxes', stripeColor: '#BE185D', noStripe: true },
   chance: { bg: 'bg-indigo-600', text: 'text-white', border: 'border-indigo-400', label: 'Chance', stripeColor: '#4338CA', noStripe: true },
   random: { bg: 'bg-teal-600', text: 'text-white', border: 'border-teal-400', label: 'Random', stripeColor: '#0F766E' },
+  rainbow: { bg: 'bg-gradient-to-r from-red-500 via-blue-500 to-green-500', text: 'text-white', border: 'border-white', label: 'Rainbow', stripeColor: 'rainbow' },
 }
 
 export function getTileColors(tileType: TileType): TileColors {

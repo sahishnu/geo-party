@@ -34,7 +34,7 @@ interface GameSeed {
 }
 
 const VALID_TILE_TYPES: TileType[] = [
-  'solo', 'head_to_head', 'all_teams', 'misc',
+  'solo', 'head_to_head', 'all_teams', 'misc', 'rainbow',
   'start', 'jail', 'go_to_jail', 'pot', 'pay_taxes', 'chance', 'random',
 ]
 const VALID_DECK_TYPES: DeckType[] = ['chance', 'random']
