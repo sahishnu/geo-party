@@ -5,7 +5,7 @@ import { getTileColors } from '../../utils/tileColors'
 
 const TILE_TYPES: TileType[] = [
   'solo', 'head_to_head', 'all_teams', 'misc',
-  'start', 'jail', 'pot', 'pay_taxes', 'chance', 'random', 'rainbow'
+  'start', 'jail', 'go_to_jail', 'pot', 'pay_taxes', 'chance', 'random', 'rainbow'
 ]
 
 export default function TileEditor({ tile, onClose }: { tile: Tile; onClose: () => void }) {

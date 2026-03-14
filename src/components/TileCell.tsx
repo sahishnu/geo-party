@@ -233,10 +233,12 @@ export default function TileCell({
     );
   }
 
-  // ── No-stripe tiles (e.g. Chance, Pay Taxes) ──────────────────────────────
+  // ── No-stripe tiles (e.g. Chance, Pay Taxes, Go to Jail) ────────────────
   if (colors.noStripe) {
     const isChance = tile.tile_type === "chance";
     const isTaxes = tile.tile_type === "pay_taxes";
+    const isGoToJail = tile.tile_type === "go_to_jail";
+    const hasSvgIcon = isTaxes || isGoToJail;
     const iconSize = Math.round(tileSize * 0.35);
     return (
       <div
@@ -253,7 +255,7 @@ export default function TileCell({
         <div
           style={{
             position: "absolute",
-            inset: isTaxes ? "0" : "3px 3px 22px",
+            inset: hasSvgIcon ? "0" : "3px 3px 22px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -269,10 +271,10 @@ export default function TileCell({
               strokeWidth={2}
             />
           )}
-          {isTaxes ? (
+          {hasSvgIcon ? (
             <img
-              src={payMoney}
-              alt="Pay Taxes"
+              src={isGoToJail ? policeOfficerHead : payMoney}
+              alt={tile.label}
               style={{ width: tileSize * 0.7, height: tileSize * 0.7 }}
             />
           ) : (

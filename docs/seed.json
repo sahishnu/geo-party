@@ -2,7 +2,7 @@
   "settings": {
     "game_name": "Jeo Party",
     "tiles_per_side": 9,
-    "jail_penalty": 100,
+    "jail_penalty": 50,
     "tax_penalty": 50,
     "starting_score": 100
   },
@@ -385,6 +385,10 @@
     },
     {
       "title": "Quiet Challenge",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Head, Shoulders, Knees, and Toes",
       "game_mode": "head_to_head"
     },
     {
