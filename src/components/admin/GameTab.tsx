@@ -27,7 +27,11 @@ export default function GameTab({ teams, tiles, config }: Props) {
   const [overridePositionInputs, setOverridePositionInputs] = useState<Record<string, string>>({})
   const [potAwardTeamIds, setPotAwardTeamIds] = useState<string[]>([])
   const [pendingTax, setPendingTax] = useState<{ team: Team; amount: number; reason: string } | null>(null)
+  const [pendingAction, setPendingAction] = useState<{ team: Team; action: 'jail' | 'start' } | null>(null)
+  const [pendingShuffle, setPendingShuffle] = useState(false)
+  const [pendingCommunism, setPendingCommunism] = useState(false)
   const [swapTeamIds, setSwapTeamIds] = useState<[string | null, string | null]>([null, null])
+  const [swapPointsTeamIds, setSwapPointsTeamIds] = useState<[string | null, string | null]>([null, null])
 
   const tileMap = new Map(tiles.map(t => [t.position, t]))
   const currentTeam = teams.find(t => t.id === config.current_team_id) ?? null
@@ -106,6 +110,19 @@ export default function GameTab({ teams, tiles, config }: Props) {
       to_position: jailPosition,
       tile_label: 'Jail',
       notes: 'Sent to Jail',
+    })
+  }
+
+  const sendToStart = async (team: Team) => {
+    await supabase.from('teams').update({ position: 0 }).eq('id', team.id)
+    await supabase.from('events').insert({
+      event_type: 'move',
+      team_id: team.id,
+      spaces_moved: 0,
+      from_position: team.position,
+      to_position: 0,
+      tile_label: tileMap.get(0)?.label ?? 'Start',
+      notes: 'Sent to Start',
     })
   }
 
@@ -252,6 +269,96 @@ export default function GameTab({ teams, tiles, config }: Props) {
     setSwapTeamIds([null, null])
   }
 
+  const toggleSwapPointsTeam = (teamId: string) => {
+    setSwapPointsTeamIds(([a, b]) => {
+      if (a === teamId) return [null, b]
+      if (b === teamId) return [a, null]
+      if (!a) return [teamId, b]
+      if (!b) return [a, teamId]
+      return [teamId, b]
+    })
+  }
+
+  const swapPoints = async () => {
+    const [idA, idB] = swapPointsTeamIds
+    if (!idA || !idB) return
+    const teamA = teams.find(t => t.id === idA)
+    const teamB = teams.find(t => t.id === idB)
+    if (!teamA || !teamB) return
+
+    const scoreA = teamA.score
+    const scoreB = teamB.score
+
+    await Promise.all([
+      supabase.from('teams').update({ score: scoreB }).eq('id', teamA.id),
+      supabase.from('teams').update({ score: scoreA }).eq('id', teamB.id),
+    ])
+    await Promise.all([
+      supabase.from('events').insert({
+        event_type: 'score_change',
+        team_id: teamA.id,
+        points_delta: scoreB - scoreA,
+        notes: `Points swapped with ${teamB.name}`,
+      }),
+      supabase.from('events').insert({
+        event_type: 'score_change',
+        team_id: teamB.id,
+        points_delta: scoreA - scoreB,
+        notes: `Points swapped with ${teamA.name}`,
+      }),
+    ])
+    setSwapPointsTeamIds([null, null])
+  }
+
+  const shufflePositions = async () => {
+    const totalTiles = getTileCount(config.tiles_per_side)
+    const allPositions = Array.from({ length: totalTiles }, (_, i) => i)
+    for (let i = allPositions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]]
+    }
+    const positions = allPositions.slice(0, teams.length)
+    await Promise.all(
+      teams.map((team, i) =>
+        supabase.from('teams').update({ position: positions[i] }).eq('id', team.id)
+      )
+    )
+    await Promise.all(
+      teams.map((team, i) =>
+        supabase.from('events').insert({
+          event_type: 'move',
+          team_id: team.id,
+          spaces_moved: 0,
+          from_position: team.position,
+          to_position: positions[i],
+          tile_label: tileMap.get(positions[i])?.label ?? 'Unknown',
+          notes: 'Positions shuffled',
+        })
+      )
+    )
+  }
+
+  const redistributePoints = async () => {
+    if (teams.length === 0) return
+    const totalPoints = teams.reduce((sum, t) => sum + t.score, 0)
+    const share = Math.floor(totalPoints / teams.length)
+    await Promise.all(
+      teams.map(team =>
+        supabase.from('teams').update({ score: share }).eq('id', team.id)
+      )
+    )
+    await Promise.all(
+      teams.map(team =>
+        supabase.from('events').insert({
+          event_type: 'score_change',
+          team_id: team.id,
+          points_delta: share - team.score,
+          notes: `Communism! Points redistributed equally (${share} pts each)`,
+        })
+      )
+    )
+  }
+
   const overrideScore = async (team: Team) => {
     const val = parseInt(overrideScoreInputs[team.id] ?? '')
     if (isNaN(val)) return
@@ -373,73 +480,6 @@ export default function GameTab({ teams, tiles, config }: Props) {
         </div>
       )}
 
-      {/* ── Swap Positions ── */}
-      {teams.length >= 2 && (
-        <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-            🔄 Swap Positions
-          </div>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {teams.map(team => {
-              const isA = swapTeamIds[0] === team.id
-              const isB = swapTeamIds[1] === team.id
-              const slot = isA ? 'A' : isB ? 'B' : null
-              return (
-                <button
-                  key={team.id}
-                  onClick={() => toggleSwapTeam(team.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
-                    isA
-                      ? 'bg-cyan-700 border-cyan-400 text-white'
-                      : isB
-                      ? 'bg-teal-700 border-teal-400 text-white'
-                      : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-cyan-500'
-                  }`}
-                >
-                  {slot && (
-                    <span className="text-xs font-bold opacity-80">{slot}</span>
-                  )}
-                  <span>{team.icon}</span>
-                  <span>{team.name}</span>
-                  <span className="text-xs opacity-60">#{team.position}</span>
-                </button>
-              )
-            })}
-          </div>
-          <div className="flex items-center gap-3">
-            {swapTeamIds[0] && swapTeamIds[1] ? (
-              <>
-                <span className="text-xs text-gray-400">
-                  {teams.find(t => t.id === swapTeamIds[0])?.icon}{' '}
-                  Tile {teams.find(t => t.id === swapTeamIds[0])?.position}
-                  {' '}↔{' '}
-                  {teams.find(t => t.id === swapTeamIds[1])?.icon}{' '}
-                  Tile {teams.find(t => t.id === swapTeamIds[1])?.position}
-                </span>
-                <button
-                  onClick={swapPositions}
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
-                >
-                  🔄 Swap
-                </button>
-              </>
-            ) : (
-              <span className="text-xs text-gray-500 italic">
-                {swapTeamIds[0] ? 'Select a second team' : 'Select two teams to swap'}
-              </span>
-            )}
-            {(swapTeamIds[0] || swapTeamIds[1]) && (
-              <button
-                onClick={() => setSwapTeamIds([null, null])}
-                className="text-xs text-gray-500 hover:text-gray-300"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {teams.length === 0 && (
         <p className="text-gray-500 italic text-sm">No teams yet. Add teams in the Teams tab.</p>
       )}
@@ -471,11 +511,44 @@ export default function GameTab({ teams, tiles, config }: Props) {
                   {isCurrentTurn ? 'Current Turn' : 'Set Turn'}
                 </button>
                 <button
-                  onClick={() => sendToJail(team)}
+                  onClick={() => setPendingAction({ team, action: 'jail' })}
                   title="Send to Jail"
                   className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-400 hover:border-orange-400 hover:text-orange-400"
                 >
                   🚔 Jail
+                </button>
+                <button
+                  onClick={() => setPendingAction({ team, action: 'start' })}
+                  title="Send to Start"
+                  className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-400 hover:border-green-400 hover:text-green-400"
+                >
+                  🏠 Start
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase.from('teams').update({ has_multiplier: !team.has_multiplier }).eq('id', team.id)
+                  }}
+                  title="Toggle x2 multiplier"
+                  className={`text-xs px-2 py-1 rounded border font-bold ${
+                    team.has_multiplier
+                      ? 'bg-fuchsia-700 text-fuchsia-100 border-fuchsia-500'
+                      : 'border-gray-600 text-gray-400 hover:border-fuchsia-400 hover:text-fuchsia-400'
+                  }`}
+                >
+                  x2
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase.from('teams').update({ has_hot_potato: !team.has_hot_potato }).eq('id', team.id)
+                  }}
+                  title="Toggle Hot Potato"
+                  className={`text-xs px-2 py-1 rounded border ${
+                    team.has_hot_potato
+                      ? 'bg-red-700 text-red-100 border-red-500'
+                      : 'border-gray-600 text-gray-400 hover:border-red-400 hover:text-red-400'
+                  }`}
+                >
+                  🥔
                 </button>
                 <button
                   onClick={() => setOverridePanelOpen(prev => ({ ...prev, [team.id]: !prev[team.id] }))}
@@ -589,6 +662,275 @@ export default function GameTab({ teams, tiles, config }: Props) {
           )
         })}
       </div>
+
+      {/* ── Swap Positions ── */}
+      {teams.length >= 2 && (
+        <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            🔄 Swap Positions
+          </div>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {teams.map(team => {
+              const isA = swapTeamIds[0] === team.id
+              const isB = swapTeamIds[1] === team.id
+              const slot = isA ? 'A' : isB ? 'B' : null
+              return (
+                <button
+                  key={team.id}
+                  onClick={() => toggleSwapTeam(team.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
+                    isA
+                      ? 'bg-cyan-700 border-cyan-400 text-white'
+                      : isB
+                      ? 'bg-teal-700 border-teal-400 text-white'
+                      : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-cyan-500'
+                  }`}
+                >
+                  {slot && (
+                    <span className="text-xs font-bold opacity-80">{slot}</span>
+                  )}
+                  <span>{team.icon}</span>
+                  <span>{team.name}</span>
+                  <span className="text-xs opacity-60">#{team.position}</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex items-center gap-3">
+            {swapTeamIds[0] && swapTeamIds[1] ? (
+              <>
+                <span className="text-xs text-gray-400">
+                  {teams.find(t => t.id === swapTeamIds[0])?.icon}{' '}
+                  Tile {teams.find(t => t.id === swapTeamIds[0])?.position}
+                  {' '}↔{' '}
+                  {teams.find(t => t.id === swapTeamIds[1])?.icon}{' '}
+                  Tile {teams.find(t => t.id === swapTeamIds[1])?.position}
+                </span>
+                <button
+                  onClick={swapPositions}
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  🔄 Swap
+                </button>
+              </>
+            ) : (
+              <span className="text-xs text-gray-500 italic">
+                {swapTeamIds[0] ? 'Select a second team' : 'Select two teams to swap'}
+              </span>
+            )}
+            {(swapTeamIds[0] || swapTeamIds[1]) && (
+              <button
+                onClick={() => setSwapTeamIds([null, null])}
+                className="text-xs text-gray-500 hover:text-gray-300"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Swap Points ── */}
+      {teams.length >= 2 && (
+        <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            💰 Swap Points
+          </div>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {teams.map(team => {
+              const isA = swapPointsTeamIds[0] === team.id
+              const isB = swapPointsTeamIds[1] === team.id
+              const slot = isA ? 'A' : isB ? 'B' : null
+              return (
+                <button
+                  key={team.id}
+                  onClick={() => toggleSwapPointsTeam(team.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
+                    isA
+                      ? 'bg-amber-700 border-amber-400 text-white'
+                      : isB
+                      ? 'bg-orange-700 border-orange-400 text-white'
+                      : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-amber-500'
+                  }`}
+                >
+                  {slot && (
+                    <span className="text-xs font-bold opacity-80">{slot}</span>
+                  )}
+                  <span>{team.icon}</span>
+                  <span>{team.name}</span>
+                  <span className="text-xs opacity-60">{team.score} pts</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex items-center gap-3">
+            {swapPointsTeamIds[0] && swapPointsTeamIds[1] ? (
+              <>
+                <span className="text-xs text-gray-400">
+                  {teams.find(t => t.id === swapPointsTeamIds[0])?.icon}{' '}
+                  {teams.find(t => t.id === swapPointsTeamIds[0])?.score} pts
+                  {' '}↔{' '}
+                  {teams.find(t => t.id === swapPointsTeamIds[1])?.icon}{' '}
+                  {teams.find(t => t.id === swapPointsTeamIds[1])?.score} pts
+                </span>
+                <button
+                  onClick={swapPoints}
+                  className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  💰 Swap
+                </button>
+              </>
+            ) : (
+              <span className="text-xs text-gray-500 italic">
+                {swapPointsTeamIds[0] ? 'Select a second team' : 'Select two teams to swap points'}
+              </span>
+            )}
+            {(swapPointsTeamIds[0] || swapPointsTeamIds[1]) && (
+              <button
+                onClick={() => setSwapPointsTeamIds([null, null])}
+                className="text-xs text-gray-500 hover:text-gray-300"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Shuffle Positions ── */}
+      {teams.length >= 2 && (
+        <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              🎲 Shuffle Positions
+            </div>
+            <button
+              onClick={() => setPendingShuffle(true)}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+            >
+              🎲 Shuffle All
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Communism ── */}
+      {teams.length >= 2 && (
+        <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              ☭ Communism
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-500">
+                Total: {teams.reduce((s, t) => s + t.score, 0)} pts → {Math.floor(teams.reduce((s, t) => s + t.score, 0) / teams.length)} pts each
+              </span>
+              <button
+                onClick={() => setPendingCommunism(true)}
+                className="bg-red-700 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+              >
+                ☭ Redistribute
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingCommunism && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-600 rounded-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-bold text-white">☭ Communism</h3>
+            <p className="text-gray-300 text-sm">
+              Redistribute all points equally? Each team will receive{' '}
+              <span className="font-semibold text-white">{Math.floor(teams.reduce((s, t) => s + t.score, 0) / teams.length)} pts</span>.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPendingCommunism(false)}
+                className="px-4 py-2 rounded text-sm font-semibold border border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  await redistributePoints()
+                  setPendingCommunism(false)
+                }}
+                className="px-4 py-2 rounded text-sm font-semibold bg-red-700 hover:bg-red-600 text-white"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingShuffle && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-600 rounded-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-bold text-white">Shuffle Positions</h3>
+            <p className="text-gray-300 text-sm">
+              Randomly shuffle the board positions of all {teams.length} teams?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPendingShuffle(false)}
+                className="px-4 py-2 rounded text-sm font-semibold border border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  await shufflePositions()
+                  setPendingShuffle(false)
+                }}
+                className="px-4 py-2 rounded text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingAction && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-600 rounded-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-bold text-white">
+              {pendingAction.action === 'jail' ? 'Send to Jail' : 'Send to Start'}
+            </h3>
+            <p className="text-gray-300 text-sm">
+              Send <span className="font-semibold">{pendingAction.team.icon} {pendingAction.team.name}</span> to{' '}
+              <span className="font-semibold">{pendingAction.action === 'jail' ? 'Jail' : 'Start (position 0)'}</span>?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPendingAction(null)}
+                className="px-4 py-2 rounded text-sm font-semibold border border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (pendingAction.action === 'jail') {
+                    await sendToJail(pendingAction.team)
+                  } else {
+                    await sendToStart(pendingAction.team)
+                  }
+                  setPendingAction(null)
+                }}
+                className={`px-4 py-2 rounded text-sm font-semibold text-white ${
+                  pendingAction.action === 'jail'
+                    ? 'bg-orange-600 hover:bg-orange-500'
+                    : 'bg-green-600 hover:bg-green-500'
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {pendingTax && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">

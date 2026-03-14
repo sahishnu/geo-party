@@ -41,7 +41,9 @@ export function useMoveAnimation(
         !prev.some(p => p.id === e.id) &&
         // Skip events that teleport instantly — no step-by-step animation needed
         !e.notes?.startsWith('Position swapped') &&
-        !e.notes?.startsWith('Sent to Jail')
+        !e.notes?.startsWith('Sent to Jail') &&
+        !e.notes?.startsWith('Positions shuffled') &&
+        !e.notes?.startsWith('Sent to Start')
     )
     if (
       newEvent &&

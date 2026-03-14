@@ -24,6 +24,7 @@ function FlipCard({
   backSubtitle,
   bgColor,
   borderColor,
+  frontEmoji,
   frontLabel,
   frontTitle,
   frontSubtitle,
@@ -33,6 +34,7 @@ function FlipCard({
   backSubtitle: string;
   bgColor: string;
   borderColor: string;
+  frontEmoji?: string;
   frontLabel: string;
   frontTitle?: string;
   frontSubtitle: string;
@@ -136,6 +138,9 @@ function FlipCard({
           >
             {frontSubtitle}
           </div>
+          {frontEmoji && (
+            <div className="text-8xl mb-3">{frontEmoji}</div>
+          )}
           {frontTitle && (
             <div
               className="text-3xl font-extrabold text-center mb-3"
@@ -164,7 +169,7 @@ export default function BoardView() {
   const [connected, setConnected] = useState(true);
   const [hoveredTeamId, setHoveredTeamId] = useState<string | null>(null);
   const [activeActivity, setActiveActivity] = useState<ActiveActivity | null>(null);
-  const [revealedCard, setRevealedCard] = useState<{ title: string; content: string } | null>(null);
+  const [revealedCard, setRevealedCard] = useState<{ title: string; content: string; emoji: string } | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [timerPaused, setTimerPaused] = useState(false);
   const [timerTotal, setTimerTotal] = useState<number | null>(null);
@@ -195,7 +200,7 @@ export default function BoardView() {
     const channel = supabase
       .channel('card_display')
       .on('broadcast', { event: 'show_card' }, ({ payload }) => {
-        setRevealedCard({ title: payload.title ?? '', content: payload.content });
+        setRevealedCard({ title: payload.title ?? '', content: payload.content, emoji: payload.emoji ?? '❓' });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -300,7 +305,7 @@ export default function BoardView() {
       )}
 
       {/* ── Player Card Strip ── */}
-      <div className="flex items-center gap-3 px-5 pt-4 pb-3 flex-wrap shrink-0">
+      <div className="flex items-center gap-5 px-5 pt-4 pb-3 flex-wrap shrink-0">
         {sortedByTurnOrder.map((team) => (
           <PlayerCard
             key={team.id}
@@ -354,6 +359,7 @@ export default function BoardView() {
           backSubtitle="Chance Card"
           bgColor="#4338CA"
           borderColor="#818CF8"
+          frontEmoji={revealedCard.emoji}
           frontLabel={revealedCard.content}
           frontTitle={revealedCard.title || undefined}
           frontSubtitle="Chance Card"

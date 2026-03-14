@@ -5,7 +5,7 @@ describe('database types', () => {
   it('Team type has required fields', () => {
     const team: Team = {
       id: '1', name: 'Team A', icon: '🎮',
-      score: 0, position: 0, turn_order: 0, laps: 0, created_at: ''
+      score: 0, position: 0, turn_order: 0, laps: 0, has_multiplier: false, has_hot_potato: false, created_at: ''
     }
     expect(team.name).toBe('Team A')
   })
@@ -37,7 +37,7 @@ describe('database types', () => {
 
   it('Card type has required fields', () => {
     const card: Card = {
-      id: '1', deck_type: 'chance', title: 'Move Back', content: 'Go back 3 spaces', created_at: ''
+      id: '1', deck_type: 'chance', title: 'Move Back', content: 'Go back 3 spaces', emoji: '⬅️', created_at: ''
     }
     expect(card.deck_type).toBe('chance')
   })

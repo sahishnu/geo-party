@@ -4,6 +4,7 @@ import type { Card } from '../../types/database'
 
 export default function CardDecksTab({ cards }: { cards: Card[] }) {
   const [newContent, setNewContent] = useState('')
+  const [newEmoji, setNewEmoji] = useState('❓')
   const [pendingCard, setPendingCard] = useState<Card | null>(null)
 
   const chanceCards = cards.filter(c => c.deck_type === 'chance')
@@ -11,8 +12,9 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
   const addCard = async () => {
     const content = newContent.trim()
     if (!content) return
-    await supabase.from('cards').insert({ deck_type: 'chance', content })
+    await supabase.from('cards').insert({ deck_type: 'chance', content, emoji: newEmoji || '❓' })
     setNewContent('')
+    setNewEmoji('❓')
   }
 
   const deleteCard = async (id: string) => {
@@ -23,7 +25,7 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
     await supabase.channel('card_display').send({
       type: 'broadcast',
       event: 'show_card',
-      payload: { title: card.title, content: card.content },
+      payload: { title: card.title, content: card.content, emoji: card.emoji || '❓' },
     })
     setPendingCard(null)
   }
@@ -49,6 +51,13 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
 
         <div className="flex gap-2">
           <input
+            value={newEmoji}
+            onChange={e => setNewEmoji(e.target.value)}
+            placeholder="😀"
+            className="w-12 bg-gray-700 text-white px-2 py-2 rounded text-sm text-center"
+            maxLength={2}
+          />
+          <input
             value={newContent}
             onChange={e => setNewContent(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addCard()}
@@ -67,6 +76,7 @@ export default function CardDecksTab({ cards }: { cards: Card[] }) {
               onClick={() => broadcastCard(card)}
             >
               <span className="flex-1">
+                <span className="mr-1">{card.emoji || '❓'}</span>
                 {card.title && <span className="font-semibold text-indigo-300">{card.title} — </span>}
                 {card.content}
               </span>

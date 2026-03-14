@@ -230,107 +230,128 @@
     {
       "deck_type": "chance",
       "title": "It's your birthday!",
-      "content": "Gain 100 points!"
+      "content": "Gain 100 points!",
+      "emoji": "🎂"
     },
     {
       "deck_type": "chance",
       "title": "Pay Taxes!",
-      "content": "Pay 50 points in taxes"
+      "content": "Pay 50 points in taxes",
+      "emoji": "🏦"
     },
     {
       "deck_type": "chance",
       "title": "Musical Chairs",
-      "content": "Swap board positions with the team in last position"
+      "content": "Swap board positions with the team in last position",
+      "emoji": "💺🎶"
     },
     {
       "deck_type": "chance",
       "title": "Score Swap",
-      "content": "Swap points with the team in last place"
+      "content": "Swap points with the team in last place",
+      "emoji": "🔄"
     },
     {
       "deck_type": "chance",
       "title": "Top Trade",
-      "content": "Swap points with the team in first place"
+      "content": "Swap points with the team in first place",
+      "emoji": "👑"
     },
     {
       "deck_type": "chance",
       "title": "Generous Move",
-      "content": "Give each team 10 of your points"
+      "content": "Give each team 10 of your points",
+      "emoji": "🎁"
     },
     {
       "deck_type": "chance",
       "title": "Payday",
-      "content": "Collect 10 points from every other team"
+      "content": "Collect 10 points from every other team",
+      "emoji": "🤑"
     },
     {
       "deck_type": "chance",
       "title": "Fast Track",
-      "content": "Go directly to Start — collect 50 bonus points"
+      "content": "Go directly to Start — collect 50 bonus points",
+      "emoji": "🚀"
     },
     {
       "deck_type": "chance",
       "title": "Busted!",
-      "content": "Go directly to Jail — do not pass Start"
+      "content": "Go directly to Jail — do not pass Start",
+      "emoji": "🚔"
     },
     {
       "deck_type": "chance",
       "title": "Double Down",
-      "content": "Double your points from your next activity"
+      "content": "Double your points from your next activity",
+      "emoji": "✖️2️⃣"
     },
     {
       "deck_type": "chance",
       "title": "Lucky Roll",
-      "content": "Roll again!"
+      "content": "Roll again!",
+      "emoji": "🎲"
     },
     {
       "deck_type": "chance",
       "title": "Robin Hood",
-      "content": "Steal 50 points from the team in 1st place and give them to the team in last place"
+      "content": "Steal 50 points from the team in 1st place and give them to the team in last place",
+      "emoji": "🏹"
     },
     {
       "deck_type": "chance",
       "title": "All In!",
-      "content": "Bet if the sum of your 2 dice rolls is above or below 7. If you're right, double your points. If you're wrong, lose half your points. On exactly 7, you must reroll."
+      "content": "Bet if the sum of your 2 dice rolls is above or below 7. If you're right, double your points. If you're wrong, lose half your points. On exactly 7, you must reroll.",
+      "emoji": "🃏"
     },
     {
       "deck_type": "chance",
       "title": "Jackpot!",
-      "content": "Gain points equal to your current board position × 10"
+      "content": "Gain points equal to your current board position × 10",
+      "emoji": "🎰"
     },
     {
       "deck_type": "chance",
       "title": "Point Pirate",
-      "content": "Steal 25 points from the team directly ahead of you on the board"
+      "content": "Steal 25 points from the team directly ahead of you on the board",
+      "emoji": "🏴‍☠️"
     },
     {
       "deck_type": "chance",
       "title": "Earthquake!",
-      "content": "ALL teams move to random board positions"
+      "content": "ALL teams move to random board positions",
+      "emoji": "🌋"
     },
     {
       "deck_type": "chance",
       "title": "Mirror Mirror",
-      "content": "Choose any team — swap your board position with theirs"
+      "content": "Choose any team — swap your board position with theirs",
+      "emoji": "🪞"
     },
     {
       "deck_type": "chance",
       "title": "Hot Potato",
-      "content": "Pass this card to another team — they lose 30 points"
+      "content": "Pass this card to another team — they lose 30 points",
+      "emoji": "🥔"
     },
     {
       "deck_type": "chance",
       "title": "Communism",
-      "content": "All teams' points are pooled and redistributed equally"
+      "content": "All teams' points are pooled and redistributed equally",
+      "emoji": "🟰"
     },
     {
       "deck_type": "chance",
       "title": "Cursed Dice",
-      "content": "You only roll 1 dice next turn"
+      "content": "You only roll 1 dice next turn",
+      "emoji": "🐍"
     },
     {
       "deck_type": "chance",
       "title": "Enchanted Dice",
-      "content": "You roll only 1 dice next turn but get to choose the value of the 2nd dice from 1–6"
+      "content": "You roll only 1 dice next turn but get to choose the value of the 2nd dice from 1–6",
+      "emoji": "🧙"
     }
   ],
   "activities": [

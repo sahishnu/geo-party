@@ -9,6 +9,9 @@ interface Props {
 function formatEvent(event: GameEvent, _teamName?: string): string {
   switch (event.event_type) {
     case "move":
+      if (event.notes?.startsWith('Positions shuffled')) return 'shuffled its position';
+      if (event.notes?.startsWith('Position swapped')) return event.notes;
+      if (event.notes?.startsWith('Sent to')) return event.notes;
       return `moved ${event.spaces_moved} spaces to "${event.tile_label}"`;
     case "score_change":
       return `${(event.points_delta ?? 0) >= 0 ? "+" : ""}${event.points_delta

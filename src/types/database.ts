@@ -27,6 +27,8 @@ export interface Team {
   position: number
   turn_order: number
   laps: number
+  has_multiplier: boolean
+  has_hot_potato: boolean
   created_at: string
 }
 
@@ -57,6 +59,7 @@ export interface Card {
   deck_type: DeckType
   title: string
   content: string
+  emoji: string
   created_at: string
 }
 

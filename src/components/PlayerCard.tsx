@@ -15,11 +15,19 @@ export default function PlayerCard({ team, isCurrentTurn, rank, onHover }: Props
 
   return (
     <div
-      className="border border-gray-200 relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-md transition-all duration-200 cursor-default"
+      className={`relative flex items-center gap-3 rounded-2xl px-5 py-3 min-w-[200px] shadow-md transition-all duration-200 cursor-default border ${
+        team.has_hot_potato
+          ? 'bg-red-50 border-red-300'
+          : 'bg-white border-gray-200'
+      }`}
       style={{
-        boxShadow: isCurrentTurn
-          ? `0 0 0 2px ${color}, 0 4px 16px ${colorLight}`
-          : "0 2px 8px rgba(0,0,0,0.08)",
+        boxShadow: team.has_hot_potato
+          ? isCurrentTurn
+            ? `0 0 0 2px #dc2626, 0 4px 16px rgba(220,38,38,0.4)`
+            : '0 0 12px rgba(220,38,38,0.3)'
+          : isCurrentTurn
+            ? `0 0 0 2px ${color}, 0 4px 16px ${colorLight}`
+            : "0 2px 8px rgba(0,0,0,0.08)",
         transform: isCurrentTurn ? "scale(1.04)" : "scale(1)",
       }}
       onMouseEnter={() => onHover?.(team.id)}
@@ -66,6 +74,20 @@ export default function PlayerCard({ team, isCurrentTurn, rank, onHover }: Props
           </div>
         )}
       </div>
+
+      {/* x2 multiplier badge */}
+      {team.has_multiplier && (
+        <span className="absolute -top-3 -right-3 bg-fuchsia-600 text-white text-sm font-extrabold px-2 py-0.5 rounded-full shadow-lg ring-2 ring-fuchsia-300">
+          x2
+        </span>
+      )}
+
+      {/* Hot Potato badge */}
+      {team.has_hot_potato && (
+        <span className="absolute -bottom-3 -right-2 bg-red-600 text-white text-sm font-extrabold px-2 py-0.5 rounded-full shadow-lg ring-2 ring-red-300">
+          🥔
+        </span>
+      )}
     </div>
   );
 }

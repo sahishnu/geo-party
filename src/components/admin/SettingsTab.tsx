@@ -26,6 +26,7 @@ interface GameSeed {
     deck_type: DeckType
     title?: string
     content: string
+    emoji?: string
   }[]
   activities?: {
     title: string
@@ -141,7 +142,7 @@ const EXAMPLE_SEED: GameSeed = {
     { position: 1, label: 'Trivia', tile_type: 'solo', color_group: 'solo' },
   ],
   cards: [
-    { deck_type: 'chance', content: 'Move forward 3 spaces' },
+    { deck_type: 'chance', content: 'Move forward 3 spaces', emoji: '👣' },
   ],
   activities: [
     { title: 'Geography Quiz', game_mode: 'solo' },

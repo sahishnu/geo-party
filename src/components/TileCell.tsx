@@ -104,13 +104,10 @@ const BODY_BG = "#FFFFFF";
 
 // Short Gujarat town/village/city names for tile stripe decoration
 const GUJARAT_NAMES = [
-  "Surat", "Borivali", "Rajkot", "Bhuj", "Andheri",
-  "Vapi", "Dadar", "Morbi", "Diu", "Bandra",
-  "Godhra", "Dahod", "Veraval", "Dwarka", "Mandvi",
-  "Worli", "Mahuva", "Colaba", "Jetpur", "Gondal",
-  "Juhu", "Una", "Modasa", "Malad", "Visnagar",
-  "Parel", "Sanand", "Valsad", "Kurla", "Bardoli",
-  "Thane", "Karjan",
+  "New Jersey", "Chicago", "Houston", "Toronto", "London",
+  "Berlin", "Auckland", "Melbourne", "Bakrol", "Bombay",
+  "Bharthana", "Ahmedabad", "Nadiad", "Ganeshpura", "Jasdan",
+  "Kutch",
 ];
 
 export default function TileCell({
