@@ -8,28 +8,28 @@
   },
   "teams": [
     {
-      "name": "Team A",
-      "icon": "🦊"
-    },
-    {
-      "name": "Team B",
-      "icon": "🐙"
-    },
-    {
-      "name": "Team C",
-      "icon": "🦅"
-    },
-    {
-      "name": "Team D",
-      "icon": "🐢"
-    },
-    {
-      "name": "Team E",
+      "name": "Lions",
       "icon": "🦁"
     },
     {
-      "name": "Team F",
-      "icon": "🐲"
+      "name": "Goats",
+      "icon": "🐐"
+    },
+    {
+      "name": "Owls",
+      "icon": "🦉"
+    },
+    {
+      "name": "Dragons",
+      "icon": "🐉"
+    },
+    {
+      "name": "Eagles",
+      "icon": "🦅"
+    },
+    {
+      "name": "Bears",
+      "icon": "🐻"
     }
   ],
   "tiles": [

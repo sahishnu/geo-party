@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
+import { toast } from "sonner";
 import Board from "../components/Board";
 import PlayerCard from "../components/PlayerCard";
-import EventLogFeed from "../components/EventLogFeed";
 import { useGameConfig } from "../hooks/useGameConfig";
 import { useTeams } from "../hooks/useTeams";
 import { useTiles } from "../hooks/useTiles";
@@ -11,7 +11,8 @@ import { useEvents } from "../hooks/useEvents";
 import { useMoveAnimation } from "../hooks/useMoveAnimation";
 import { getCameraTransform } from "../utils/cameraTransform";
 import { supabase } from "../lib/supabase";
-import type { Team } from "../types/database";
+import { getTeamColor } from "../utils/teamColors";
+import type { Team, GameEvent } from "../types/database";
 
 type ActiveActivity = {
   title: string;
@@ -161,6 +162,26 @@ function FlipCard({
   );
 }
 
+function formatEventMessage(event: GameEvent): string {
+  switch (event.event_type) {
+    case "move":
+      if (event.notes?.startsWith('Positions shuffled')) return 'shuffled its position';
+      if (event.notes?.startsWith('Position swapped')) return event.notes;
+      if (event.notes?.startsWith('Sent to')) return event.notes;
+      return `moved ${event.spaces_moved} spaces to "${event.tile_label}"`;
+    case "score_change":
+      return `${(event.points_delta ?? 0) >= 0 ? "+" : ""}${event.points_delta} pts${event.notes ? ` (${event.notes})` : ""}`;
+    case "pot_claim":
+      return `claimed the pot! 🎉`;
+    case "pot_contribution":
+      return `added ${Math.abs(event.points_delta ?? 0)} pts to pot`;
+    case "card_reveal":
+      return `card: ${event.notes}`;
+    default:
+      return event.notes ?? "";
+  }
+}
+
 export default function BoardView() {
   const { config, loading: configLoading } = useGameConfig();
   const { teams } = useTeams();
@@ -175,9 +196,10 @@ export default function BoardView() {
   const [timerTotal, setTimerTotal] = useState<number | null>(null);
   const { animatingTeam, currentPosition, isAnimating } = useMoveAnimation(events, teams, config);
 
-  // Confetti: track which event IDs we've already processed
+  // Track which event IDs we've already processed (confetti + toasts)
   const seenEventIdsRef = useRef(new Set<string>());
   const confettiInitialized = useRef(false);
+  const teamMap = new Map<string, Team>(teams.map((t) => [t.id, t]));
 
   useEffect(() => {
     const channel = supabase.channel("connection_check").subscribe((status) => {
@@ -246,6 +268,34 @@ export default function BoardView() {
     }
   }, [events]);
 
+  // Toast notifications for new events
+  useEffect(() => {
+    if (!confettiInitialized.current) return;
+    for (const event of events) {
+      if (seenEventIdsRef.current.has(event.id)) continue;
+      const team = event.team_id ? teamMap.get(event.team_id) : undefined;
+      const teamName = team?.name ?? "Unknown";
+      const message = formatEventMessage(event);
+      const color = team ? getTeamColor(team.turn_order) : "#6B7280";
+
+      toast(
+        <div className="flex items-center gap-2">
+          <span
+            className="w-6 h-6 flex items-center justify-center rounded-full text-xs shrink-0 border-2 border-white shadow"
+            style={{ backgroundColor: color }}
+          >
+            {team?.icon ?? "🎲"}
+          </span>
+          <span>
+            <span className="font-bold">{teamName}</span>{" "}
+            <span className="text-gray-600">{message}</span>
+          </span>
+        </div>,
+        { duration: 4000 },
+      );
+    }
+  }, [events]);
+
   // Countdown tick — pauses when timerPaused is true
   useEffect(() => {
     if (timeLeft === null || timeLeft <= 0 || timerPaused) return;
@@ -266,7 +316,6 @@ export default function BoardView() {
 
   const sortedByTurnOrder = [...teams].sort((a, b) => a.turn_order - b.turn_order);
   const sortedByScore = [...teams].sort((a, b) => b.score - a.score);
-  const teamMap = new Map<string, Team>(teams.map((t) => [t.id, t]));
   const scoreRankMap = new Map<string, number>();
   let currentRank = 1;
   for (let i = 0; i < sortedByScore.length; i++) {
@@ -276,9 +325,9 @@ export default function BoardView() {
 
   const n = config.tiles_per_side;
   const tileSize = Math.min(
-    Math.floor((window.innerWidth * 0.97) / n),
-    Math.floor((window.innerHeight * 0.80) / n),
-    140
+    Math.floor((window.innerWidth * 1.0) / n),
+    Math.floor((window.innerHeight * 1.0) / n),
+    220
   );
   const boardPx = n * tileSize;
   const camera = getCameraTransform(isAnimating ? currentPosition : null, n, tileSize, boardPx);
@@ -304,22 +353,8 @@ export default function BoardView() {
         </div>
       )}
 
-      {/* ── Player Card Strip ── */}
-      <div className="flex items-center gap-5 px-5 pt-4 pb-3 flex-wrap shrink-0">
-        {sortedByTurnOrder.map((team) => (
-          <PlayerCard
-            key={team.id}
-            team={team}
-            isCurrentTurn={team.id === config.current_team_id}
-            rank={scoreRankMap.get(team.id)}
-            onHover={setHoveredTeamId}
-          />
-        ))}
-
-      </div>
-
-      {/* ── Board + Event Log ── */}
-      <div className="flex flex-1 gap-4 px-5 overflow-hidden min-h-0">
+      {/* ── Board + Player List ── */}
+      <div className="flex flex-1 gap-4 px-5 pt-4 overflow-hidden min-h-0">
         {/* Board area */}
         <div className="flex-1 flex items-center justify-center overflow-hidden">
           {tiles.length > 0 ? (
@@ -346,9 +381,17 @@ export default function BoardView() {
           )}
         </div>
 
-        {/* Event Log feed */}
-        <div className="w-72 shrink-0 bg-white/70 backdrop-blur-sm rounded-2xl mb-4 px-4 py-4 shadow-sm overflow-hidden flex flex-col">
-          <EventLogFeed events={events} teamMap={teamMap} />
+        {/* Player list sidebar */}
+        <div className="flex flex-col justify-center gap-5 shrink-0 overflow-y-auto py-4 px-4 -mr-4">
+          {sortedByTurnOrder.map((team) => (
+            <PlayerCard
+              key={team.id}
+              team={team}
+              isCurrentTurn={team.id === config.current_team_id}
+              rank={scoreRankMap.get(team.id)}
+              onHover={setHoveredTeamId}
+            />
+          ))}
         </div>
       </div>
 

@@ -28,10 +28,19 @@ export default function GameTab({ teams, tiles, config }: Props) {
   const [potAwardTeamIds, setPotAwardTeamIds] = useState<string[]>([])
   const [pendingTax, setPendingTax] = useState<{ team: Team; amount: number; reason: string } | null>(null)
   const [pendingAction, setPendingAction] = useState<{ team: Team; action: 'jail' | 'start' } | null>(null)
+  const [pendingTeamAction, setPendingTeamAction] = useState<{
+    team: Team; type: 'add' | 'remove' | 'pot' | 'move'; amount: number; notes?: string
+  } | null>(null)
   const [pendingShuffle, setPendingShuffle] = useState(false)
   const [pendingCommunism, setPendingCommunism] = useState(false)
   const [swapTeamIds, setSwapTeamIds] = useState<[string | null, string | null]>([null, null])
   const [swapPointsTeamIds, setSwapPointsTeamIds] = useState<[string | null, string | null]>([null, null])
+  const [transferFromIds, setTransferFromIds] = useState<string[]>([])
+  const [transferToIds, setTransferToIds] = useState<string[]>([])
+  const [transferAmount, setTransferAmount] = useState('')
+  const [pendingTransfer, setPendingTransfer] = useState<{
+    fromTeams: Team[]; toTeams: Team[]; perFromDeduction: number; perToCredit: number; totalAmount: number
+  } | null>(null)
 
   const tileMap = new Map(tiles.map(t => [t.position, t]))
   const currentTeam = teams.find(t => t.id === config.current_team_id) ?? null
@@ -160,9 +169,9 @@ export default function GameTab({ teams, tiles, config }: Props) {
     })
   }
 
-  const adjustScore = async (team: Team, delta: number) => {
+  const adjustScore = async (team: Team, delta: number, notesOverride?: string) => {
     if (!delta) return
-    const notes = scoreNotes[team.id]?.trim() || null
+    const notes = notesOverride ?? (scoreNotes[team.id]?.trim() || null)
     await supabase.from('teams').update({ score: team.score + delta }).eq('id', team.id)
     await supabase.from('events').insert({
       event_type: 'score_change',
@@ -170,15 +179,6 @@ export default function GameTab({ teams, tiles, config }: Props) {
       points_delta: delta,
       notes,
     })
-    setScoreInputs(prev => ({ ...prev, [team.id]: '' }))
-    setScoreNotes(prev => ({ ...prev, [team.id]: '' }))
-  }
-
-  const addManualPenaltyToPot = async (team: Team) => {
-    const amount = parseInt(scoreInputs[team.id] ?? '0')
-    if (!amount || amount <= 0) return
-    const notes = scoreNotes[team.id]?.trim() || 'Manual penalty'
-    await applyPenaltyToPot(team, amount, notes)
     setScoreInputs(prev => ({ ...prev, [team.id]: '' }))
     setScoreNotes(prev => ({ ...prev, [team.id]: '' }))
   }
@@ -308,6 +308,42 @@ export default function GameTab({ teams, tiles, config }: Props) {
       }),
     ])
     setSwapPointsTeamIds([null, null])
+  }
+
+  const executeTransfer = async (fromTeams: Team[], toTeams: Team[], perFromDeduction: number, perToCredit: number) => {
+    await Promise.all(
+      fromTeams.map(team =>
+        supabase.from('teams').update({ score: team.score - perFromDeduction }).eq('id', team.id)
+      )
+    )
+    await Promise.all(
+      toTeams.map(team =>
+        supabase.from('teams').update({ score: team.score + perToCredit }).eq('id', team.id)
+      )
+    )
+    const toNames = toTeams.map(t => t.name).join(', ')
+    const fromNames = fromTeams.map(t => t.name).join(', ')
+    await Promise.all([
+      ...fromTeams.map(team =>
+        supabase.from('events').insert({
+          event_type: 'score_change',
+          team_id: team.id,
+          points_delta: -perFromDeduction,
+          notes: `Transferred ${perFromDeduction} pts to ${toNames}`,
+        })
+      ),
+      ...toTeams.map(team =>
+        supabase.from('events').insert({
+          event_type: 'score_change',
+          team_id: team.id,
+          points_delta: perToCredit,
+          notes: `Received ${perToCredit} pts from ${fromNames}`,
+        })
+      ),
+    ])
+    setTransferFromIds([])
+    setTransferToIds([])
+    setTransferAmount('')
   }
 
   const shufflePositions = async () => {
@@ -574,9 +610,8 @@ export default function GameTab({ teams, tiles, config }: Props) {
                       className="flex-1 bg-gray-700 text-white px-2 py-1.5 rounded text-sm" />
                     <button onClick={() => {
                       const spaces = parseInt(moveInputs[team.id] ?? '0')
-                      moveTeam(team, spaces).then(() =>
-                        setMoveInputs(prev => ({ ...prev, [team.id]: '' }))
-                      )
+                      if (!spaces || spaces < 1) return
+                      setPendingTeamAction({ team, type: 'move', amount: spaces })
                     }}
                       className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-sm font-semibold">
                       Move
@@ -593,12 +628,24 @@ export default function GameTab({ teams, tiles, config }: Props) {
                       placeholder="Points"
                       className="flex-1 bg-gray-700 text-white px-2 py-1.5 rounded text-sm" />
                     <button
-                      onClick={() => adjustScore(team, parseInt(scoreInputs[team.id] ?? '0'))}
+                      onClick={() => {
+                        const pts = parseInt(scoreInputs[team.id] ?? '0')
+                        if (!pts) return
+                        setPendingTeamAction({ team, type: 'add', amount: Math.abs(pts), notes: scoreNotes[team.id]?.trim() || undefined })
+                      }}
                       className="bg-green-600 hover:bg-green-500 text-white px-2 py-1.5 rounded text-sm">+</button>
                     <button
-                      onClick={() => adjustScore(team, -Math.abs(parseInt(scoreInputs[team.id] ?? '0')))}
+                      onClick={() => {
+                        const pts = parseInt(scoreInputs[team.id] ?? '0')
+                        if (!pts) return
+                        setPendingTeamAction({ team, type: 'remove', amount: Math.abs(pts), notes: scoreNotes[team.id]?.trim() || undefined })
+                      }}
                       className="bg-red-600 hover:bg-red-500 text-white px-2 py-1.5 rounded text-sm">−</button>
-                    <button onClick={() => addManualPenaltyToPot(team)}
+                    <button onClick={() => {
+                        const pts = parseInt(scoreInputs[team.id] ?? '0')
+                        if (!pts || pts <= 0) return
+                        setPendingTeamAction({ team, type: 'pot', amount: Math.abs(pts), notes: scoreNotes[team.id]?.trim() || undefined })
+                      }}
                       className="bg-purple-700 hover:bg-purple-600 text-white px-2 py-1.5 rounded text-xs">→Pot</button>
                   </div>
                   <input
@@ -797,6 +844,127 @@ export default function GameTab({ teams, tiles, config }: Props) {
         </div>
       )}
 
+      {/* ── Transfer Points ── */}
+      {teams.length >= 2 && (
+        <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            🔀 Transfer Points
+          </div>
+          <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-start mb-3">
+            {/* From teams */}
+            <div>
+              <div className="text-xs text-red-400 font-semibold mb-1">From</div>
+              <div className="flex flex-wrap gap-1.5">
+                {teams.map(team => {
+                  const selected = transferFromIds.includes(team.id)
+                  const isTo = transferToIds.includes(team.id)
+                  return (
+                    <button
+                      key={team.id}
+                      disabled={isTo}
+                      onClick={() => setTransferFromIds(prev =>
+                        selected ? prev.filter(id => id !== team.id) : [...prev, team.id]
+                      )}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition ${
+                        selected
+                          ? 'bg-red-700 border-red-400 text-white'
+                          : isTo
+                          ? 'bg-gray-900 border-gray-700 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-red-500'
+                      }`}
+                    >
+                      <span>{team.icon}</span>
+                      <span>{team.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Amount */}
+            <div className="flex flex-col items-center gap-1 pt-4">
+              <span className="text-gray-500 text-lg">→</span>
+              <input
+                type="number"
+                min={1}
+                value={transferAmount}
+                onChange={e => setTransferAmount(e.target.value)}
+                placeholder="Pts"
+                className="w-20 bg-gray-700 text-white px-2 py-1.5 rounded text-sm text-center"
+              />
+              <span className="text-[10px] text-gray-500">per team</span>
+            </div>
+
+            {/* To teams */}
+            <div>
+              <div className="text-xs text-green-400 font-semibold mb-1">To</div>
+              <div className="flex flex-wrap gap-1.5">
+                {teams.map(team => {
+                  const selected = transferToIds.includes(team.id)
+                  const isFrom = transferFromIds.includes(team.id)
+                  return (
+                    <button
+                      key={team.id}
+                      disabled={isFrom}
+                      onClick={() => setTransferToIds(prev =>
+                        selected ? prev.filter(id => id !== team.id) : [...prev, team.id]
+                      )}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition ${
+                        selected
+                          ? 'bg-green-700 border-green-400 text-white'
+                          : isFrom
+                          ? 'bg-gray-900 border-gray-700 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-green-500'
+                      }`}
+                    >
+                      <span>{team.icon}</span>
+                      <span>{team.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {transferFromIds.length > 0 && transferToIds.length > 0 && parseInt(transferAmount) > 0 ? (
+              <>
+                <span className="text-xs text-gray-400">
+                  {transferFromIds.map(id => teams.find(t => t.id === id)?.icon).join(' ')}
+                  {' '}-{transferAmount} pts each → +{Math.floor((parseInt(transferAmount) * transferFromIds.length) / transferToIds.length)} pts each{' '}
+                  {transferToIds.map(id => teams.find(t => t.id === id)?.icon).join(' ')}
+                </span>
+                <button
+                  onClick={() => {
+                    const amt = parseInt(transferAmount)
+                    const totalPool = amt * transferFromIds.length
+                    const perTo = Math.floor(totalPool / transferToIds.length)
+                    const fromTeams = teams.filter(t => transferFromIds.includes(t.id))
+                    const toTeams = teams.filter(t => transferToIds.includes(t.id))
+                    setPendingTransfer({ fromTeams, toTeams, perFromDeduction: amt, perToCredit: perTo, totalAmount: totalPool })
+                  }}
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  🔀 Transfer
+                </button>
+              </>
+            ) : (
+              <span className="text-xs text-gray-500 italic">
+                Select from/to teams and enter an amount
+              </span>
+            )}
+            {(transferFromIds.length > 0 || transferToIds.length > 0) && (
+              <button
+                onClick={() => { setTransferFromIds([]); setTransferToIds([]); setTransferAmount('') }}
+                className="text-xs text-gray-500 hover:text-gray-300"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Shuffle Positions ── */}
       {teams.length >= 2 && (
         <div className="bg-gray-800 rounded-xl p-3 border border-gray-600">
@@ -830,6 +998,61 @@ export default function GameTab({ teams, tiles, config }: Props) {
                 className="bg-red-700 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
               >
                 ☭ Redistribute
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingTransfer && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-600 rounded-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-bold text-white">🔀 Transfer Points</h3>
+            <div className="text-gray-300 text-sm space-y-2">
+              <p>
+                Deduct <span className="font-semibold text-red-400">{pendingTransfer.perFromDeduction} pts</span> from each:
+              </p>
+              <div className="flex flex-wrap gap-1.5 ml-2">
+                {pendingTransfer.fromTeams.map(t => (
+                  <span key={t.id} className="inline-flex items-center gap-1 text-sm">
+                    {t.icon} {t.name}
+                  </span>
+                ))}
+              </div>
+              <p>
+                Give <span className="font-semibold text-green-400">{pendingTransfer.perToCredit} pts</span> to each:
+              </p>
+              <div className="flex flex-wrap gap-1.5 ml-2">
+                {pendingTransfer.toTeams.map(t => (
+                  <span key={t.id} className="inline-flex items-center gap-1 text-sm">
+                    {t.icon} {t.name}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500">
+                Total transferred: {pendingTransfer.totalAmount} pts
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPendingTransfer(null)}
+                className="px-4 py-2 rounded text-sm font-semibold border border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  await executeTransfer(
+                    pendingTransfer.fromTeams,
+                    pendingTransfer.toTeams,
+                    pendingTransfer.perFromDeduction,
+                    pendingTransfer.perToCredit,
+                  )
+                  setPendingTransfer(null)
+                }}
+                className="px-4 py-2 rounded text-sm font-semibold bg-cyan-600 hover:bg-cyan-500 text-white"
+              >
+                Confirm
               </button>
             </div>
           </div>
@@ -923,6 +1146,71 @@ export default function GameTab({ teams, tiles, config }: Props) {
                   pendingAction.action === 'jail'
                     ? 'bg-orange-600 hover:bg-orange-500'
                     : 'bg-green-600 hover:bg-green-500'
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingTeamAction && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-600 rounded-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-bold text-white">
+              {pendingTeamAction.type === 'add' && 'Add Points'}
+              {pendingTeamAction.type === 'remove' && 'Remove Points'}
+              {pendingTeamAction.type === 'pot' && 'Send Points to Pot'}
+              {pendingTeamAction.type === 'move' && 'Move Team'}
+            </h3>
+            <p className="text-gray-300 text-sm">
+              {pendingTeamAction.type === 'add' && (
+                <>Add <span className="font-semibold text-green-400">{pendingTeamAction.amount} pts</span> to <span className="font-semibold">{pendingTeamAction.team.icon} {pendingTeamAction.team.name}</span>?</>
+              )}
+              {pendingTeamAction.type === 'remove' && (
+                <>Remove <span className="font-semibold text-red-400">{pendingTeamAction.amount} pts</span> from <span className="font-semibold">{pendingTeamAction.team.icon} {pendingTeamAction.team.name}</span>?</>
+              )}
+              {pendingTeamAction.type === 'pot' && (
+                <>Deduct <span className="font-semibold text-purple-400">{pendingTeamAction.amount} pts</span> from <span className="font-semibold">{pendingTeamAction.team.icon} {pendingTeamAction.team.name}</span> and send to pot?</>
+              )}
+              {pendingTeamAction.type === 'move' && (
+                <>Move <span className="font-semibold">{pendingTeamAction.team.icon} {pendingTeamAction.team.name}</span> forward <span className="font-semibold text-blue-400">{pendingTeamAction.amount} spaces</span>?</>
+              )}
+            </p>
+            {pendingTeamAction.notes && (
+              <p className="text-xs text-gray-500">Notes: {pendingTeamAction.notes}</p>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPendingTeamAction(null)}
+                className="px-4 py-2 rounded text-sm font-semibold border border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  const { team, type, amount, notes } = pendingTeamAction
+                  if (type === 'add') {
+                    await adjustScore(team, amount, notes)
+                  } else if (type === 'remove') {
+                    await adjustScore(team, -amount, notes)
+                  } else if (type === 'pot') {
+                    // Replicate addManualPenaltyToPot but with confirmed amount/notes
+                    await applyPenaltyToPot(team, amount, notes || 'Manual penalty')
+                    setScoreInputs(prev => ({ ...prev, [team.id]: '' }))
+                    setScoreNotes(prev => ({ ...prev, [team.id]: '' }))
+                  } else if (type === 'move') {
+                    await moveTeam(team, amount)
+                    setMoveInputs(prev => ({ ...prev, [team.id]: '' }))
+                  }
+                  setPendingTeamAction(null)
+                }}
+                className={`px-4 py-2 rounded text-sm font-semibold text-white ${
+                  pendingTeamAction.type === 'add' ? 'bg-green-600 hover:bg-green-500'
+                    : pendingTeamAction.type === 'remove' ? 'bg-red-600 hover:bg-red-500'
+                    : pendingTeamAction.type === 'pot' ? 'bg-purple-700 hover:bg-purple-600'
+                    : 'bg-blue-600 hover:bg-blue-500'
                 }`}
               >
                 Confirm

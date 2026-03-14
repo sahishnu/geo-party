@@ -3,7 +3,7 @@ import { getTeamColor } from "../utils/teamColors";
 
 interface Props {
   team: Team;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export default function TeamToken({ team, size = "md" }: Props) {
@@ -11,6 +11,7 @@ export default function TeamToken({ team, size = "md" }: Props) {
     sm: { outer: "w-9 h-9", emoji: "text-base" },
     md: { outer: "w-11 h-11", emoji: "text-xl" },
     lg: { outer: "w-14 h-14", emoji: "text-2xl" },
+    xl: { outer: "w-16 h-16", emoji: "text-3xl" },
   };
   const { outer, emoji } = sizeMap[size];
   const bgColor = getTeamColor(team.turn_order);

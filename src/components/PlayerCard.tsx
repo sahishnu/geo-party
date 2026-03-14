@@ -15,7 +15,7 @@ export default function PlayerCard({ team, isCurrentTurn, rank, onHover }: Props
 
   return (
     <div
-      className={`relative flex items-center gap-3 rounded-2xl px-5 py-3 min-w-[200px] shadow-md transition-all duration-200 cursor-default border ${
+      className={`relative flex items-center gap-5 rounded-2xl px-7 py-5 min-w-[280px] shadow-md transition-all duration-200 cursor-default border ${
         team.has_hot_potato
           ? 'bg-red-50 border-red-300'
           : 'bg-white border-gray-200'
@@ -46,7 +46,7 @@ export default function PlayerCard({ team, isCurrentTurn, rank, onHover }: Props
       {/* Rank badge */}
       {rank !== undefined && (
         <div
-          className="absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold text-white shadow"
+          className="absolute -top-2.5 -left-2.5 w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold text-white shadow"
           style={{ backgroundColor: rank === 1 ? '#F59E0B' : rank === 2 ? '#9CA3AF' : rank === 3 ? '#B45309' : '#374151' }}
         >
           {rank}
@@ -54,22 +54,22 @@ export default function PlayerCard({ team, isCurrentTurn, rank, onHover }: Props
       )}
 
       {/* Avatar */}
-      <TeamToken team={team} size="lg" />
+      <TeamToken team={team} size="xl" />
 
       {/* Name + Score + Laps */}
       <div className="min-w-0">
-        <div className="font-extrabold text-gray-800 truncate text-md leading-tight">
+        <div className="font-extrabold text-gray-800 truncate text-xl leading-tight">
           {team.name}
         </div>
         <div
-          className="font-extrabold text-2xl leading-tight tabular-nums"
+          className="font-extrabold text-4xl leading-tight tabular-nums"
           style={{ color }}
         >
           {team.score.toLocaleString()}
-          <span className="text-xs font-semibold text-gray-400 ml-1">pts</span>
+          <span className="text-sm font-semibold text-gray-400 ml-1">pts</span>
         </div>
         {team.laps > 0 && (
-          <div className="text-xs text-blue-500 font-semibold leading-tight">
+          <div className="text-sm text-blue-500 font-semibold leading-tight">
             🔁 {team.laps} {team.laps === 1 ? 'lap' : 'laps'}
           </div>
         )}
