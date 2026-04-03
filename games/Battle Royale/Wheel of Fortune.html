@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOF Toss-Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── SHARED ── */
+:root {
+  --gold: #f5c518;
+  --gold2: #c9960f;
+  --blue-dark: #0a1628;
+  --blue-mid: #0d2050;
+  --blue-bright: #1a3a8c;
+  --cyan: #00d4ff;
+  --red: #e8341c;
+  --green: #27c96f;
+  --white: #fff;
+  --border: rgba(0,212,255,.25);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+/* ══════════════════════════════
+   ADMIN VIEW
+══════════════════════════════ */
+#adminView {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(160deg,#060f24 0%,#0a1628 50%,#060f24 100%);
+  color: var(--white);
+  font-family: 'Roboto Condensed', sans-serif;
+  padding: 20px;
+}
+
+#adminView h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: .15em;
+  text-align: center;
+  background: linear-gradient(180deg,#fff 0%,var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2px;
+}
+.admin-sub { text-align:center; color:rgba(255,255,255,.4); letter-spacing:.2em; font-size:.8rem; margin-bottom:20px; }
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.panel {
+  background: rgba(13,32,80,.85);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  backdrop-filter: blur(8px);
+}
+.panel-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: .95rem;
+  letter-spacing: .2em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 7px;
+}
+
+/* board preview */
+.a-board-wrap {
+  padding: 14px;
+  background: linear-gradient(135deg,rgba(13,32,80,.6),rgba(10,22,40,.8));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  min-height: 80px;
+  display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center;
+}
+.board-row { display:flex; gap:5px; justify-content:center; }
+.tile {
+  width: clamp(28px,3.2vw,50px);
+  height: clamp(38px,4.5vw,66px);
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Oswald',sans-serif;
+  font-size: clamp(.85rem,1.6vw,1.6rem);
+  font-weight:700; flex-shrink:0; transition:all .3s;
+}
+.tile.blank { background:linear-gradient(160deg,#1b3066,#0f1f4a); border:1.5px solid rgba(0,212,255,.2); color:rgba(255,255,255,.15); }
+.tile.space { background:transparent; border:none; width:clamp(10px,1.2vw,18px); }
+.tile.revealed { background:linear-gradient(160deg,#fff,#e8e8e8); border:1.5px solid rgba(255,255,255,.8); color:#0a1628; box-shadow:0 0 12px rgba(245,197,24,.4); }
+.tile.answer-dim { background:linear-gradient(160deg,#1b3a1e,#0f2a14); border:1.5px solid rgba(39,201,111,.35); color:rgba(39,201,111,.85); }
+
+.answer-box {
+  text-align:center; padding:9px 12px;
+  background:rgba(39,201,111,.08);
+  border:1px solid rgba(39,201,111,.25);
+  border-radius:6px;
+  font-family:'Oswald',sans-serif; font-size:1.25rem; letter-spacing:.1em;
+  color:var(--green); margin-bottom:12px; word-break:break-word;
+}
+
+.progress-bar { width:100%; height:5px; background:rgba(255,255,255,.1); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--gold)); border-radius:3px; transition:width .4s; width:0%; }
+
+.status-row { display:flex; gap:8px; align-items:center; font-size:.82rem; color:rgba(255,255,255,.5); margin-bottom:10px; }
+.badge { padding:2px 10px; border-radius:20px; font-family:'Oswald',sans-serif; font-size:.72rem; letter-spacing:.1em; }
+.b-idle { background:rgba(255,255,255,.1); color:rgba(255,255,255,.4); }
+.b-run  { background:rgba(0,212,255,.15); color:var(--cyan); border:1px solid rgba(0,212,255,.4); }
+.b-done { background:rgba(39,201,111,.15); color:var(--green); border:1px solid rgba(39,201,111,.4); }
+.b-pause { background:rgba(245,197,24,.15); color:var(--gold); border:1px solid rgba(245,197,24,.4); }
+
+.ctrl-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:10px 16px; border:none; border-radius:7px;
+  font-family:'Oswald',sans-serif; font-size:.95rem; letter-spacing:.1em;
+  text-transform:uppercase; cursor:pointer; transition:all .2s; width:100%;
+}
+.btn:active { transform:scale(.97); }
+.btn:disabled { opacity:.35; cursor:not-allowed; }
+
+.btn-correct { background:linear-gradient(135deg,#156b38,#0d4424); color:#7bffb2; border:1px solid var(--green); font-size:1.1rem; padding:13px; box-shadow:0 0 14px rgba(39,201,111,.2); }
+.btn-correct:not(:disabled):hover { box-shadow:0 0 26px rgba(39,201,111,.5); }
+.btn-wrong   { background:linear-gradient(135deg,#6b1515,#44100d); color:#ff9f9f; border:1px solid var(--red); font-size:1.1rem; padding:13px; box-shadow:0 0 14px rgba(232,52,28,.2); }
+.btn-wrong:not(:disabled):hover { box-shadow:0 0 26px rgba(232,52,28,.5); }
+.btn-reset   { background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.12); font-size:.82rem; padding:7px; margin-top:8px; }
+.btn-open    { background:linear-gradient(135deg,var(--blue-bright),var(--blue-mid)); color:var(--cyan); border:1px solid var(--cyan); box-shadow:0 0 12px rgba(0,212,255,.15); }
+.btn-open:hover { box-shadow:0 0 24px rgba(0,212,255,.35); }
+.btn-load    { background:linear-gradient(135deg,#1a3a8c,#0d2050); color:var(--gold); border:1px solid var(--gold); box-shadow:0 0 12px rgba(245,197,24,.15); }
+.btn-load:hover { box-shadow:0 0 22px rgba(245,197,24,.4); }
+.btn-pause   { background:linear-gradient(135deg,#4a3800,#2e2200); color:#ffd966; border:1px solid #f5c518; font-size:1.1rem; padding:13px; box-shadow:0 0 14px rgba(245,197,24,.2); }
+.btn-pause:not(:disabled):hover { box-shadow:0 0 26px rgba(245,197,24,.5); }
+.btn-pause.paused { background:linear-gradient(135deg,#0d3a1a,#072010); color:#7bffb2; border-color:var(--green); box-shadow:0 0 14px rgba(39,201,111,.2); }
+.btn-pause.paused:not(:disabled):hover { box-shadow:0 0 26px rgba(39,201,111,.5); }
+
+/* puzzle list */
+.plist { max-height:320px; overflow-y:auto; }
+.plist::-webkit-scrollbar { width:4px; }
+.plist::-webkit-scrollbar-track { background:rgba(255,255,255,.04); }
+.plist::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.pitem { padding:8px 10px; border-radius:6px; cursor:pointer; border:1px solid transparent; transition:all .15s; margin-bottom:3px; }
+.pitem:hover { background:rgba(255,255,255,.05); border-color:var(--border); }
+.pitem.sel { background:rgba(26,58,140,.4); border-color:var(--cyan); }
+.pitem-ans { font-family:'Oswald',sans-serif; font-size:.95rem; letter-spacing:.05em; color:var(--white); }
+
+label { font-size:.82rem; color:rgba(255,255,255,.55); letter-spacing:.08em; display:block; margin-bottom:4px; }
+input {
+  width:100%; padding:8px 11px;
+  background:rgba(255,255,255,.06); border:1px solid var(--border);
+  border-radius:6px; color:var(--white);
+  font-family:'Roboto Condensed',sans-serif; font-size:.9rem;
+  letter-spacing:.04em; margin-bottom:11px; outline:none; transition:border-color .2s;
+}
+input:focus { border-color:var(--cyan); }
+
+.open-note { font-size:.74rem; color:rgba(255,255,255,.3); text-align:center; margin-top:5px; }
+
+/* ══════════════════════════════
+   PLAYER VIEW  (hidden by default)
+══════════════════════════════ */
+#playerView {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0a1628;
+  font-family: 'Roboto Condensed', sans-serif;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* starfield */
+.stars {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 50%,rgba(26,58,140,.45) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 20%,rgba(0,212,255,.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 60% 80%,rgba(26,58,140,.3) 0%,transparent 50%),
+    #0a1628;
+}
+.stars::before {
+  content:''; position:absolute; inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 25% 40%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 50% 10%,rgba(255,255,255,.8) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 30%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 35% 70%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 65% 85%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 85%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 45% 55%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 85% 90%,rgba(255,255,255,.7) 0%,transparent 100%);
+}
+
+.p-header { position:relative; z-index:10; text-align:center; margin-bottom:14px; }
+.show-title {
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(2rem,5vw,3.8rem);
+  letter-spacing:.12em; text-transform:uppercase;
+  background:linear-gradient(180deg,#fff 0%,var(--gold) 60%,var(--gold2) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 18px rgba(245,197,24,.6));
+}
+.toss-label {
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(.9rem,2.2vw,1.5rem);
+  letter-spacing:.3em; color:var(--cyan); text-transform:uppercase; margin-top:2px;
+}
+
+.cat-banner {
+  position:relative; z-index:10;
+  background:linear-gradient(90deg,transparent,var(--blue-bright),var(--blue-bright),transparent);
+  padding:5px 40px;
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(.85rem,1.8vw,1.3rem);
+  letter-spacing:.2em; color:var(--gold); text-transform:uppercase; text-align:center;
+  margin-bottom:20px;
+  border-top:1px solid rgba(0,212,255,.3); border-bottom:1px solid rgba(0,212,255,.3);
+  min-width:280px;
+}
+
+.p-board-wrap {
+  position:relative; z-index:10;
+  display:flex; flex-direction:column; gap:8px;
+  padding:18px 20px;
+  background:linear-gradient(135deg,rgba(13,32,80,.8),rgba(10,22,40,.9));
+  border:2px solid rgba(0,212,255,.25); border-radius:12px;
+  box-shadow:0 0 60px rgba(0,0,0,.6),inset 0 0 40px rgba(26,58,140,.3);
+}
+
+.p-tile {
+  width:clamp(32px,4.2vw,60px);
+  height:clamp(44px,5.8vw,78px);
+  border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(1rem,2.2vw,2rem);
+  font-weight:700; flex-shrink:0;
+}
+.p-tile.blank { background:linear-gradient(160deg,#1b3066,#0f1f4a); border:2px solid rgba(0,212,255,.2); }
+.p-tile.space { background:transparent; border:none; width:clamp(14px,1.8vw,24px); }
+.p-tile.revealed {
+  background:linear-gradient(160deg,#fff,#e8e8e8);
+  border:2px solid rgba(255,255,255,.8); color:#0a1628;
+  box-shadow:0 0 18px rgba(245,197,24,.45);
+  animation:flipIn .35s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes flipIn {
+  0%   { transform:rotateY(90deg) scale(.8); opacity:0; }
+  100% { transform:rotateY(0deg) scale(1);   opacity:1; }
+}
+
+.deco-bar {
+  position:relative; z-index:10;
+  width:80%; height:3px; margin:14px auto 0;
+  background:linear-gradient(90deg,transparent,var(--gold),var(--cyan),var(--gold),transparent);
+  border-radius:2px;
+}
+
+.waiting-msg {
+  position:relative; z-index:10; margin-top:28px;
+  font-size:.95rem; letter-spacing:.15em; color:rgba(255,255,255,.3);
+  text-transform:uppercase; text-align:center;
+  animation:blink 2s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── Overlay popup ── */
+.overlay {
+  position:fixed; inset:0; z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.65); backdrop-filter:blur(6px);
+  opacity:0; pointer-events:none; transition:opacity .4s;
+}
+.overlay.show { opacity:1; pointer-events:all; }
+.popup {
+  background:linear-gradient(145deg,#0d2050,#061030);
+  border:3px solid var(--gold); border-radius:16px;
+  padding:38px 56px; text-align:center;
+  box-shadow:0 0 80px rgba(245,197,24,.4),0 20px 60px rgba(0,0,0,.6);
+  transform:scale(.8); transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  max-width:560px;
+}
+.overlay.show .popup { transform:scale(1); }
+.pop-title { font-family:'Oswald',sans-serif; font-size:clamp(1.8rem,5.5vw,3.6rem); letter-spacing:.1em; margin-bottom:8px; }
+.pop-title.correct {
+  background:linear-gradient(180deg,#fff 0%,var(--gold) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(245,197,24,.8));
+}
+.pop-title.wrong { color:var(--red); }
+.pop-sub { font-size:clamp(.85rem,1.8vw,1.2rem); color:rgba(255,255,255,.65); letter-spacing:.07em; }
+.pop-count {
+  font-family:'Oswald',sans-serif; font-size:clamp(3rem,7vw,5.5rem);
+  color:var(--cyan); margin:14px 0;
+  filter:drop-shadow(0 0 18px var(--cyan));
+  animation:pulse 1s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.pop-cont {
+  font-family:'Oswald',sans-serif; font-size:clamp(1.4rem,3.5vw,2.6rem);
+  color:var(--gold); letter-spacing:.2em;
+  animation:glow 1.2s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from { filter:drop-shadow(0 0 8px rgba(245,197,24,.4)); }
+  to   { filter:drop-shadow(0 0 24px rgba(245,197,24,.9)); }
+}
+
+/* confetti */
+@keyframes fall {
+  0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
+}
+.confetti { position:fixed; width:10px; height:16px; border-radius:2px; pointer-events:none; z-index:200; animation:fall linear forwards; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ ADMIN VIEW ══════════════ -->
+<div id="adminView">
+  <h1>🎡 Wheel of Fortune</h1>
+  <div class="admin-sub">TOSS-UP · ADMIN PANEL</div>
+
+  <div class="admin-layout">
+
+    <!-- LEFT -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Board Preview (Answer Visible to Admin)</div>
+
+        <div class="status-row">
+          <span id="aBadge" class="badge b-idle">IDLE</span>
+          <span id="aStatus">No puzzle loaded</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="aProgress"></div></div>
+
+        <div class="answer-box" id="aAnswer">—</div>
+
+        <div class="a-board-wrap" id="aBoard">
+          <div style="color:rgba(255,255,255,.3);font-size:.9rem">Select a puzzle to begin</div>
+        </div>
+
+        <div class="ctrl-grid" style="grid-template-columns:1fr 1fr;">
+          <button class="btn btn-correct" id="btnCorrect" disabled onclick="sendCorrect()">✓ CORRECT</button>
+          <button class="btn btn-pause"   id="btnPause"   disabled onclick="togglePause()">⏸ PAUSE</button>
+        </div>
+        <button class="btn btn-reset" onclick="resetGame()">↺ Reset Board</button>
+
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label style="margin:0;font-size:.82rem;color:rgba(255,255,255,.55);letter-spacing:.08em">LETTER REVEAL SPEED</label>
+            <span id="speedDisplay" style="font-family:'Oswald',sans-serif;font-size:1rem;color:var(--gold);letter-spacing:.05em">3.0s</span>
+          </div>
+          <input type="range" id="speedSlider" min="1" max="10" step="0.5" value="3"
+            style="width:100%;margin-bottom:6px;accent-color:var(--gold);cursor:pointer;height:6px"
+            oninput="updateSpeed(this.value)" />
+          <div style="display:flex;justify-content:space-between;font-size:.7rem;color:rgba(255,255,255,.3);letter-spacing:.06em">
+            <span>FAST (1s)</span><span>SLOW (10s)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="panel-title">Player Display</div>
+        <button class="btn btn-open" onclick="openDisplay()">🖥 Open Display Window</button>
+        <div class="open-note">Opens full-screen in a new tab for players</div>
+      </div>
+
+      <div class="panel" style="margin-bottom:14px">
+        <div class="panel-title">Phrases</div>
+        <div class="plist" id="pList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Custom Phrase</div>
+        <label>YOUR PHRASE</label>
+        <input id="customAns" placeholder="e.g. ONCE IN A BLUE MOON" style="text-transform:uppercase" />
+        <button class="btn btn-load" onclick="loadCustom()">Load Custom Phrase</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════ PLAYER VIEW ══════════════ -->
+<div id="playerView">
+  <div class="stars"></div>
+
+  <div class="p-header">
+    <div class="show-title">Wheel of Fortune</div>
+    <div class="toss-label">✦ Toss-Up ✦</div>
+  </div>
+
+  <div class="cat-banner" id="pCat">—</div>
+
+  <div class="p-board-wrap">
+    <div id="pRows" style="display:flex;flex-direction:column;gap:8px;align-items:center"></div>
+  </div>
+
+  <div class="deco-bar"></div>
+  <div class="waiting-msg" id="pWaiting">Waiting for puzzle…</div>
+
+  <!-- popup -->
+  <div class="overlay" id="pOverlay">
+    <div class="popup">
+      <div class="pop-title" id="popTitle"></div>
+      <div class="pop-sub"   id="popSub"></div>
+      <div class="pop-count" id="popCount" style="display:none"></div>
+      <div class="pop-cont"  id="popCont"  style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ════════════════════════════════════════
+//  PUZZLES — PHRASE only
+// ════════════════════════════════════════
+const PUZZLES = [
+  "HITTING THE NAIL ON THE HEAD",
+  "ONCE IN A BLUE MOON",
+  "BITE THE BULLET",
+  "SPILL THE BEANS",
+  "BARKING UP THE WRONG TREE",
+  "KILL TWO BIRDS WITH ONE STONE",
+  "LET THE CAT OUT OF THE BAG",
+  "THE BALL IS IN YOUR COURT",
+  "PIECE OF CAKE",
+  "UNDER THE WEATHER",
+  "BREAK A LEG",
+  "HIT THE NAIL ON THE HEAD",
+  "THE BEST OF BOTH WORLDS",
+  "BURN THE MIDNIGHT OIL",
+  "ACTIONS SPEAK LOUDER THAN WORDS",
+  "EVERY CLOUD HAS A SILVER LINING",
+  "DONT JUDGE A BOOK BY ITS COVER",
+  "THE EARLY BIRD CATCHES THE WORM",
+  "BETTER LATE THAN NEVER",
+  "TWO PEAS IN A POD",
+  "ON THE TIP OF MY TONGUE",
+  "COSTS AN ARM AND A LEG",
+  "STRAIGHT FROM THE HORSES MOUTH",
+  "MISSING THE FOREST FOR THE TREES",
+  "WHEN PIGS FLY",
+  "GOOD THINGS COME TO THOSE WHO WAIT",
+  "JUMP ON THE BANDWAGON",
+  "HIT THE SACK",
+  "BACK TO SQUARE ONE",
+  "BUTTERFLIES IN MY STOMACH",
+];
+
+// ════════════════════════════════════════
+//  SHARED STATE
+// ════════════════════════════════════════
+const channel = new BroadcastChannel('wof_tossup');
+let currentRows = null;
+let revealQueue = [];
+let revealedCount = 0;
+let totalLetters = 0;
+let revealInterval = null;
+let gameRunning = false;
+let gamePaused = false;
+let revealDelay = 3000; // ms, matches slider default of 3s
+
+// ════════════════════════════════════════
+//  ADMIN — Init
+// ════════════════════════════════════════
+function buildList() {
+  const el = document.getElementById('pList');
+  PUZZLES.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'pitem';
+    d.id = 'pitem-' + i;
+    d.innerHTML = `<div class="pitem-ans">${p}</div>`;
+    d.onclick = () => selectPuzzle(i);
+    el.appendChild(d);
+  });
+}
+
+function selectPuzzle(i) {
+  document.querySelectorAll('.pitem').forEach(e => e.classList.remove('sel'));
+  document.getElementById('pitem-' + i).classList.add('sel');
+  loadPuzzle(PUZZLES[i]);
+}
+
+function loadCustom() {
+  const ans = document.getElementById('customAns').value.trim().toUpperCase();
+  if (!ans) { alert('Enter a phrase.'); return; }
+  document.querySelectorAll('.pitem').forEach(e => e.classList.remove('sel'));
+  loadPuzzle(ans);
+}
+
+// ════════════════════════════════════════
+//  PARSE → ROWS  (max 13 letters/row)
+// ════════════════════════════════════════
+function parseRows(answer) {
+  const words = answer.toUpperCase().split(' ');
+  const MAX = 13;
+  const rows = [];
+  let row = [], len = 0;
+  words.forEach(word => {
+    const need = len === 0 ? word.length : word.length + 1;
+    if (need > MAX - len && row.length > 0) {
+      rows.push([...row]); row = []; len = 0;
+    }
+    if (row.length > 0) { row.push(' '); len++; }
+    for (const ch of word) { row.push(ch); len++; }
+  });
+  if (row.length) rows.push([...row]);
+  return rows;
+}
+
+// ════════════════════════════════════════
+//  LOAD PUZZLE
+// ════════════════════════════════════════
+function loadPuzzle(answer) {
+  stopReveal();
+  currentRows = parseRows(answer);
+  revealedCount = 0;
+  totalLetters = currentRows.flat().filter(c => c !== ' ').length;
+
+  revealQueue = [];
+  currentRows.forEach((row, ri) => row.forEach((ch, ci) => {
+    if (ch !== ' ') revealQueue.push({ ri, ci });
+  }));
+  shuffle(revealQueue);
+
+  renderAdminBoard();
+  document.getElementById('aAnswer').textContent = answer;
+  setStatus('run', `Running — 0 / ${totalLetters} letters revealed`);
+  setProgress(0);
+
+  document.getElementById('btnCorrect').disabled = false;
+  document.getElementById('btnPause').disabled = false;
+  gamePaused = false;
+  const pb = document.getElementById('btnPause');
+  pb.textContent = '⏸ PAUSE'; pb.classList.remove('paused');
+  gameRunning = true;
+
+  channel.postMessage({ type: 'NEW_PUZZLE', answer, category: 'PHRASE', rows: currentRows });
+  startReveal();
+}
+
+// ════════════════════════════════════════
+//  ADMIN BOARD RENDER
+// ════════════════════════════════════════
+function renderAdminBoard() {
+  const board = document.getElementById('aBoard');
+  board.innerHTML = '';
+  currentRows.forEach((row, ri) => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'board-row';
+    row.forEach((ch, ci) => {
+      const t = document.createElement('div');
+      t.id = `at-${ri}-${ci}`;
+      t.className = ch === ' ' ? 'tile space' : 'tile answer-dim';
+      if (ch !== ' ') t.textContent = ch;
+      rowDiv.appendChild(t);
+    });
+    board.appendChild(rowDiv);
+  });
+}
+
+function adminReveal(ri, ci) {
+  const t = document.getElementById(`at-${ri}-${ci}`);
+  if (t) { t.className = 'tile revealed'; }
+}
+
+// ════════════════════════════════════════
+//  REVEAL LOOP
+// ════════════════════════════════════════
+function startReveal() {
+  revealInterval = setInterval(() => {
+    if (!revealQueue.length) { stopReveal(); return; }
+    const { ri, ci } = revealQueue.shift();
+    revealedCount++;
+    adminReveal(ri, ci);
+    channel.postMessage({ type: 'REVEAL_TILE', ri, ci });
+    setProgress(revealedCount / totalLetters * 100);
+    setStatus('run', `Running — ${revealedCount} / ${totalLetters} letters revealed`);
+  }, revealDelay);
+}
+
+function updateSpeed(val) {
+  revealDelay = parseFloat(val) * 1000;
+  document.getElementById('speedDisplay').textContent = parseFloat(val).toFixed(1) + 's';
+  // If currently running, restart interval with new speed
+  if (gameRunning && !gamePaused) {
+    stopReveal();
+    startReveal();
+  }
+}
+
+function stopReveal() {
+  if (revealInterval) { clearInterval(revealInterval); revealInterval = null; }
+}
+
+function togglePause() {
+  if (!gameRunning) return;
+  const pb = document.getElementById('btnPause');
+  if (!gamePaused) {
+    // Pause
+    stopReveal();
+    gamePaused = true;
+    pb.textContent = '▶ RESUME'; pb.classList.add('paused');
+    setStatus('pause', `Paused — ${revealedCount} / ${totalLetters} letters revealed`);
+  } else {
+    // Resume
+    gamePaused = false;
+    pb.textContent = '⏸ PAUSE'; pb.classList.remove('paused');
+    setStatus('run', `Running — ${revealedCount} / ${totalLetters} letters revealed`);
+    startReveal();
+  }
+}
+
+// ════════════════════════════════════════
+//  CONTROL BUTTONS
+// ════════════════════════════════════════
+function sendCorrect() {
+  stopReveal();
+  revealQueue.forEach(({ ri, ci }) => adminReveal(ri, ci));
+  revealQueue = [];
+  setProgress(100);
+  setStatus('done', 'Puzzle solved!');
+  document.getElementById('btnCorrect').disabled = true;
+  document.getElementById('btnPause').disabled = true;
+  gameRunning = false;
+  channel.postMessage({ type: 'CORRECT', rows: currentRows });
+}
+
+function resetGame() {
+  stopReveal();
+  currentRows = null; gameRunning = false; gamePaused = false;
+  document.getElementById('aBoard').innerHTML = '<div style="color:rgba(255,255,255,.3);font-size:.9rem;text-align:center;padding:14px">Select a puzzle to begin</div>';
+  document.getElementById('aAnswer').textContent = '—';
+  document.getElementById('btnCorrect').disabled = true;
+  const pb = document.getElementById('btnPause');
+  pb.disabled = true; pb.textContent = '⏸ PAUSE'; pb.classList.remove('paused');
+  setProgress(0); setStatus('idle', 'No puzzle loaded');
+  document.querySelectorAll('.pitem').forEach(e => e.classList.remove('sel'));
+  channel.postMessage({ type: 'RESET' });
+}
+
+function setStatus(type, text) {
+  const b = document.getElementById('aBadge');
+  b.className = 'badge ' + (type === 'run' ? 'b-run' : type === 'done' ? 'b-done' : type === 'pause' ? 'b-pause' : 'b-idle');
+  b.textContent = type === 'run' ? 'RUNNING' : type === 'done' ? 'SOLVED' : type === 'pause' ? 'PAUSED' : 'IDLE';
+  document.getElementById('aStatus').textContent = text;
+}
+function setProgress(p) { document.getElementById('aProgress').style.width = p + '%'; }
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+
+// ════════════════════════════════════════
+//  OPEN DISPLAY — opens this same file with ?player in the URL
+// ════════════════════════════════════════
+function openDisplay() {
+  const url = location.href.split('?')[0] + '?player';
+  window.open(url, 'WOF_Display', 'width=1280,height=720');
+}
+
+// Listen for player window saying it's ready, then resend current state
+channel.onmessage = (e) => {
+  if (e.data.type === 'PLAYER_READY') {
+    if (currentRows) {
+      // Resend full puzzle state including which tiles are already revealed
+      const revealedTiles = [];
+      currentRows.forEach((row, ri) => row.forEach((ch, ci) => {
+        if (ch !== ' ') {
+          const t = document.getElementById(`at-${ri}-${ci}`);
+          if (t && t.classList.contains('revealed')) revealedTiles.push({ ri, ci });
+        }
+      }));
+      channel.postMessage({ type: 'NEW_PUZZLE', answer: document.getElementById('aAnswer').textContent, category: 'PHRASE', rows: currentRows });
+      // Re-reveal already-shown tiles
+      setTimeout(() => {
+        revealedTiles.forEach(({ ri, ci }) => channel.postMessage({ type: 'REVEAL_TILE', ri, ci }));
+      }, 300);
+    }
+  }
+};
+
+function bootPlayerView() {
+  document.getElementById('adminView').style.display = 'none';
+  document.getElementById('playerView').style.display = 'flex';
+  document.title = 'WOF Toss-Up – Players';
+
+  const ch = new BroadcastChannel('wof_tossup');
+
+  // Tell admin we're ready so it can resend current state
+  setTimeout(() => ch.postMessage({ type: 'PLAYER_READY' }), 200);
+
+  ch.onmessage = (e) => {
+    const msg = e.data;
+    if (msg.type === 'NEW_PUZZLE') {
+      document.getElementById('pCat').textContent = msg.category;
+      document.getElementById('pWaiting').style.display = 'none';
+      document.getElementById('pOverlay').classList.remove('show');
+      buildPlayerBoard(msg.rows);
+    }
+    if (msg.type === 'REVEAL_TILE') {
+      playerReveal(msg.ri, msg.ci);
+    }
+    if (msg.type === 'CORRECT') {
+      if (msg.rows) msg.rows.forEach((row, ri) => row.forEach((ch, ci) => { if (ch !== ' ') playerReveal(ri, ci); }));
+      setTimeout(showCorrect, 400);
+    }
+    if (msg.type === 'WRONG') { showWrong(); }
+    if (msg.type === 'RESET') {
+      document.getElementById('pRows').innerHTML = '';
+      document.getElementById('pCat').textContent = '—';
+      document.getElementById('pWaiting').style.display = 'block';
+      document.getElementById('pOverlay').classList.remove('show');
+    }
+  };
+
+  function buildPlayerBoard(rows) {
+    const container = document.getElementById('pRows');
+    container.innerHTML = '';
+    rows.forEach((row, ri) => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'board-row';
+      row.forEach((ch, ci) => {
+        const t = document.createElement('div');
+        t.id = `pt-${ri}-${ci}`;
+        t.className = ch === ' ' ? 'p-tile space' : 'p-tile blank';
+        if (ch !== ' ') t.dataset.letter = ch;
+        rowDiv.appendChild(t);
+      });
+      container.appendChild(rowDiv);
+    });
+  }
+
+  function playerReveal(ri, ci) {
+    const t = document.getElementById(`pt-${ri}-${ci}`);
+    if (t && t.dataset.letter) {
+      t.className = 'p-tile revealed';
+      t.textContent = t.dataset.letter;
+    }
+  }
+
+  function showCorrect() {
+    confetti();
+    const ov = document.getElementById('pOverlay');
+    document.getElementById('popTitle').className = 'pop-title correct';
+    document.getElementById('popTitle').textContent = '🎉 CORRECT! 🎉';
+    document.getElementById('popSub').textContent = 'Well done!';
+    document.getElementById('popCount').style.display = 'none';
+    document.getElementById('popCont').style.display = 'none';
+    ov.classList.add('show');
+    setTimeout(() => { ov.classList.remove('show'); }, 2000);
+  }
+
+  function showWrong() {
+    const ov = document.getElementById('pOverlay');
+    document.getElementById('popTitle').className = 'pop-title wrong';
+    document.getElementById('popTitle').textContent = 'Not quite. Keep playing!';
+    document.getElementById('popSub').textContent = '';
+    const cd = document.getElementById('popCount');
+    const ct = document.getElementById('popCont');
+    cd.style.display = 'block'; ct.style.display = 'none';
+    ov.classList.add('show');
+    let n = 5; cd.textContent = n;
+    const tmr = setInterval(() => {
+      n--;
+      if (n > 0) { cd.textContent = n; }
+      else {
+        clearInterval(tmr);
+        cd.style.display = 'none';
+        ct.style.display = 'block';
+        setTimeout(() => { ov.classList.remove('show'); }, 1800);
+      }
+    }, 1000);
+  }
+
+  function confetti() {
+    const cols = ['#f5c518','#00d4ff','#e8341c','#ffffff','#1a3a8c'];
+    for (let i = 0; i < 80; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.cssText = `left:${Math.random()*100}vw;top:-20px;background:${cols[i%cols.length]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s;transform:rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  BOOT — detect mode from URL
+// ════════════════════════════════════════
+if (location.search === '?player') {
+  bootPlayerView();
+} else {
+  buildList();
+}
+</script>
+</body>
+</html>

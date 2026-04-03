@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Are You Smarter Than a 5th Grader? — Host Panel</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gold: #f59e0b;
+        --gold-dark: #d97706;
+        --green: #10b981;
+        --red: #ef4444;
+        --skip: #f97316;
+        --bg: #eff6ff;
+        --card: #ffffff;
+        --card2: #f5f0ff;
+        --text: #1e1b4b;
+        --muted: #64748b;
+        --accent: #7c3aed;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Nunito", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Confetti-dot background */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: radial-gradient(
+            6px 6px at 10% 20%,
+            rgba(245, 158, 11, 0.22) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            4px 4px at 30% 50%,
+            rgba(124, 58, 237, 0.18) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            5px 5px at 60% 10%,
+            rgba(16, 185, 129, 0.18) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            4px 4px at 80% 70%,
+            rgba(239, 68, 68, 0.15) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            6px 6px at 50% 90%,
+            rgba(245, 158, 11, 0.18) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            3px 3px at 90% 40%,
+            rgba(124, 58, 237, 0.12) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            5px 5px at 20% 80%,
+            rgba(16, 185, 129, 0.18) 0%,
+            transparent 100%
+          ),
+          radial-gradient(
+            4px 4px at 70% 30%,
+            rgba(249, 115, 22, 0.18) 0%,
+            transparent 100%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 20px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+
+      .header h1 {
+        font-family: "Fredoka One", cursive;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        color: var(--gold);
+        text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+        letter-spacing: 1px;
+        line-height: 1.1;
+      }
+
+      .header .subtitle {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-top: 6px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      /* Open Display Button */
+      .open-display-btn {
+        display: block;
+        margin: 0 auto 24px;
+        background: linear-gradient(135deg, #7c3aed, #5b21b6);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 50px;
+        font-family: "Fredoka One", cursive;
+        font-size: 1.1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+        transition: all 0.2s;
+        letter-spacing: 1px;
+      }
+      .open-display-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(124, 58, 237, 0.5);
+      }
+      .open-display-btn:active {
+        transform: translateY(0);
+      }
+
+      /* Main layout */
+      .game-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 20px;
+        align-items: start;
+      }
+
+      /* Question Card */
+      .question-card {
+        background: var(--card);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .question-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--gold),
+          var(--accent),
+          var(--gold)
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s linear infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .q-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .q-number {
+        font-family: "Fredoka One", cursive;
+        font-size: 1rem;
+        color: var(--gold);
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        padding: 4px 14px;
+        border-radius: 20px;
+      }
+
+      .q-category {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent);
+        background: rgba(124, 58, 237, 0.08);
+        border: 1px solid rgba(124, 58, 237, 0.25);
+        padding: 4px 12px;
+        border-radius: 20px;
+      }
+
+      .question-text {
+        font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        font-weight: 800;
+        line-height: 1.4;
+        color: var(--text);
+        margin-bottom: 20px;
+        min-height: 60px;
+      }
+
+      .answer-reveal {
+        background: rgba(245, 158, 11, 0.07);
+        border: 2px dashed rgba(245, 158, 11, 0.4);
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+      }
+
+      .answer-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .answer-text {
+        font-family: "Fredoka One", cursive;
+        font-size: 1.3rem;
+        color: var(--gold);
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .action-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 16px 10px;
+        font-family: "Fredoka One", cursive;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        letter-spacing: 0.5px;
+      }
+
+      .action-btn .icon {
+        font-size: 1.5rem;
+      }
+
+      .btn-correct {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+      }
+      .btn-correct:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+      }
+
+      .btn-wrong {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+      }
+      .btn-wrong:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+      }
+
+      .btn-skip {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        color: white;
+        box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35);
+      }
+      .btn-skip:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(249, 115, 22, 0.5);
+      }
+
+      .action-btn:active {
+        transform: translateY(0) scale(0.97);
+      }
+      .action-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* Timer */
+      .timer-card {
+        background: var(--card);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09);
+      }
+
+      .timer-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .timer-display {
+        font-family: "Fredoka One", cursive;
+        font-size: 4rem;
+        line-height: 1;
+        color: var(--gold);
+        transition: color 0.3s;
+      }
+
+      .timer-display.warning {
+        color: #f97316;
+      }
+      .timer-display.danger {
+        color: var(--red);
+        animation: pulse 0.5s infinite alternate;
+      }
+
+      @keyframes pulse {
+        from {
+          transform: scale(1);
+        }
+        to {
+          transform: scale(1.05);
+        }
+      }
+
+      .timer-bar-wrap {
+        background: rgba(100, 116, 139, 0.15);
+        border-radius: 6px;
+        height: 8px;
+        margin-top: 10px;
+        overflow: hidden;
+      }
+
+      .timer-bar {
+        height: 100%;
+        border-radius: 6px;
+        background: var(--gold);
+        transition: width 1s linear, background 0.3s;
+      }
+
+      /* Score Card */
+      .score-card {
+        background: var(--card);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09);
+      }
+
+      .score-title {
+        font-family: "Fredoka One", cursive;
+        font-size: 1rem;
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 14px;
+        letter-spacing: 1px;
+      }
+
+      .score-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .score-item {
+        text-align: center;
+        background: rgba(100, 116, 139, 0.07);
+        border-radius: 10px;
+        padding: 10px 6px;
+      }
+
+      .score-num {
+        font-family: "Fredoka One", cursive;
+        font-size: 1.8rem;
+        line-height: 1;
+      }
+
+      .score-item.correct .score-num {
+        color: var(--green);
+      }
+      .score-item.wrong .score-num {
+        color: var(--red);
+      }
+      .score-item.skip .score-num {
+        color: var(--skip);
+      }
+
+      .score-item .score-lbl {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        font-weight: 700;
+        margin-top: 3px;
+      }
+
+      .total-score {
+        text-align: center;
+        background: linear-gradient(
+          135deg,
+          rgba(245, 158, 11, 0.12),
+          rgba(245, 158, 11, 0.04)
+        );
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .total-score .pts-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .total-score .pts-value {
+        font-family: "Fredoka One", cursive;
+        font-size: 2.4rem;
+        color: var(--gold);
+        line-height: 1.1;
+      }
+
+      /* Control Buttons */
+      .control-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .ctrl-btn {
+        flex: 1;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-family: "Fredoka One", cursive;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-start {
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        color: #1e1b4b;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+      }
+      .btn-start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+      }
+
+      .btn-reset {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--muted);
+        border: 1px solid rgba(100, 116, 139, 0.2);
+      }
+      .btn-reset:hover {
+        background: rgba(100, 116, 139, 0.18);
+        color: var(--text);
+      }
+
+      /* Result Overlay */
+      .result-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(239, 246, 255, 0.97);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .result-overlay.show {
+        display: flex;
+      }
+
+      .result-title {
+        font-family: "Fredoka One", cursive;
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        color: var(--gold);
+        text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+        animation: pop 0.4s ease;
+      }
+
+      @keyframes pop {
+        0% {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        70% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .result-score {
+        font-family: "Fredoka One", cursive;
+        font-size: clamp(3rem, 10vw, 6rem);
+        color: var(--text);
+        line-height: 1;
+        margin: 10px 0;
+      }
+
+      .result-breakdown {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        margin: 20px 0 30px;
+        flex-wrap: wrap;
+      }
+
+      .result-stat {
+        text-align: center;
+      }
+
+      .result-stat .rnum {
+        font-family: "Fredoka One", cursive;
+        font-size: 2rem;
+      }
+
+      .result-stat .rlbl {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .smarter-verdict {
+        font-family: "Fredoka One", cursive;
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
+        color: var(--accent);
+        margin-bottom: 28px;
+        max-width: 500px;
+      }
+
+      .result-close-btn {
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        color: #1e1b4b;
+        border: none;
+        padding: 16px 40px;
+        border-radius: 50px;
+        font-family: "Fredoka One", cursive;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
+        transition: all 0.2s;
+      }
+      .result-close-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(245, 158, 11, 0.5);
+      }
+
+      /* History */
+      .history-card {
+        background: var(--card);
+        border: 2px solid rgba(245, 158, 11, 0.15);
+        border-radius: 20px;
+        padding: 16px;
+        max-height: 280px;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09);
+      }
+
+      .history-title {
+        font-family: "Fredoka One", cursive;
+        font-size: 0.9rem;
+        color: var(--gold);
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
+
+      .history-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+        font-size: 0.8rem;
+      }
+
+      .history-item:last-child {
+        border-bottom: none;
+      }
+
+      .hist-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .hist-q {
+        color: var(--muted);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .hist-pts {
+        font-family: "Fredoka One", cursive;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+      .hist-pts.pos {
+        color: var(--green);
+      }
+      .hist-pts.neg {
+        color: var(--red);
+      }
+      .hist-pts.skip-c {
+        color: var(--skip);
+      }
+
+      /* Confetti */
+      .confetti-piece {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        animation: confetti-fall 3s ease-in forwards;
+        z-index: 200;
+        pointer-events: none;
+      }
+
+      @keyframes confetti-fall {
+        0% {
+          transform: translateY(-20px) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+
+      /* Game states */
+      .waiting-state {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      /* Responsive */
+      @media (max-width: 700px) {
+        .game-layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          order: -1;
+        }
+        .control-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎓 Are You Smarter Than a 5th Grader?</h1>
+        <div class="subtitle">
+          Host Control Panel · Answers Visible to Host Only
+        </div>
+      </div>
+
+      <button class="open-display-btn" onclick="openPlayerDisplay()">
+        📺 Open Player Display (New Tab)
+      </button>
+
+      <div class="game-layout">
+        <!-- Main Question Area -->
+        <div>
+          <div class="question-card" id="questionCard">
+            <div class="q-meta">
+              <span class="q-number" id="qNumber">Question 1 of 20</span>
+              <span class="q-category" id="qCategory">—</span>
+            </div>
+            <div class="question-text" id="questionText">
+              Press START to begin the round!
+            </div>
+            <div class="answer-reveal">
+              <div class="answer-label">🔒 Host Answer</div>
+              <div class="answer-text" id="answerText">—</div>
+            </div>
+            <div class="action-buttons">
+              <button
+                class="action-btn btn-correct"
+                id="btnCorrect"
+                onclick="recordAnswer('correct')"
+                disabled
+              >
+                <span class="icon">✅</span> Correct<br /><small>+5 pts</small>
+              </button>
+              <button
+                class="action-btn btn-wrong"
+                id="btnWrong"
+                onclick="recordAnswer('wrong')"
+                disabled
+              >
+                <span class="icon">❌</span> Wrong<br /><small>0 pts</small>
+              </button>
+              <button
+                class="action-btn btn-skip"
+                id="btnSkip"
+                onclick="recordAnswer('skip')"
+                disabled
+              >
+                <span class="icon">⏭</span> Pass<br /><small>0 pts</small>
+              </button>
+            </div>
+          </div>
+
+          <!-- History -->
+          <div class="history-card" style="margin-top: 16px" id="historyCard">
+            <div class="history-title">📋 Round History</div>
+            <div id="historyList">
+              <div style="color: var(--muted); font-size: 0.8rem">
+                No questions answered yet.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="timer-card">
+            <div class="timer-label">Time Remaining</div>
+            <div class="timer-display" id="timerDisplay">1:00</div>
+            <div class="timer-bar-wrap">
+              <div class="timer-bar" id="timerBar" style="width: 100%"></div>
+            </div>
+          </div>
+
+          <div class="score-card">
+            <div class="score-title">⭐ Scoreboard</div>
+            <div class="score-grid">
+              <div class="score-item correct">
+                <div class="score-num" id="correctCount">0</div>
+                <div class="score-lbl">Correct</div>
+              </div>
+              <div class="score-item wrong">
+                <div class="score-num" id="wrongCount">0</div>
+                <div class="score-lbl">Wrong</div>
+              </div>
+              <div class="score-item skip">
+                <div class="score-num" id="skipCount">0</div>
+                <div class="score-lbl">Passed</div>
+              </div>
+            </div>
+            <div class="total-score">
+              <div class="pts-label">Total Points</div>
+              <div class="pts-value" id="totalPoints">0</div>
+            </div>
+          </div>
+
+          <div class="set-buttons">
+            <div
+              style="
+                font-family: 'Fredoka One', cursive;
+                font-size: 0.85rem;
+                color: var(--gold);
+                text-align: center;
+                margin-bottom: 8px;
+                letter-spacing: 1px;
+              "
+            >
+              Choose Question Set
+            </div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 10px;
+              "
+            >
+              <button
+                class="ctrl-btn btn-start"
+                id="btnSetA"
+                onclick="startGame('A')"
+              >
+                ▶ Set A
+              </button>
+              <button
+                class="ctrl-btn btn-start"
+                id="btnSetB"
+                onclick="startGame('B')"
+              >
+                ▶ Set B
+              </button>
+              <button
+                class="ctrl-btn btn-start"
+                id="btnSetC"
+                onclick="startGame('C')"
+              >
+                ▶ Set C
+              </button>
+            </div>
+            <button
+              class="ctrl-btn btn-reset"
+              style="width: 100%"
+              onclick="resetGame()"
+            >
+              ↺ Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Overlay -->
+    <div class="result-overlay" id="resultOverlay">
+      <div class="result-title" id="resultTitle">⏰ Time's Up!</div>
+      <div
+        style="
+          color: var(--muted);
+          font-size: 1rem;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+        "
+      >
+        Final Score
+      </div>
+      <div class="result-score" id="resultScore">0 pts</div>
+      <div class="result-breakdown">
+        <div class="result-stat">
+          <div class="rnum" style="color: var(--green)" id="rCorrect">0</div>
+          <div class="rlbl">Correct</div>
+        </div>
+        <div class="result-stat">
+          <div class="rnum" style="color: var(--red)" id="rWrong">0</div>
+          <div class="rlbl">Wrong</div>
+        </div>
+        <div class="result-stat">
+          <div class="rnum" style="color: var(--skip)" id="rSkip">0</div>
+          <div class="rlbl">Passed</div>
+        </div>
+      </div>
+      <div class="smarter-verdict" id="smarter-verdict"></div>
+      <button class="result-close-btn" onclick="closeResult()">
+        Play Again
+      </button>
+    </div>
+
+    <script>
+      // ===================== QUESTION SETS =====================
+      // Replace the placeholder questions in each set with your own.
+      const questionSets = {
+        A: [
+          {
+            q: "What is the closest planet to the Sun?",
+            a: "Mercury",
+            cat: "Science",
+          },
+          {
+            q: "What gas do plants absorb from the air during photosynthesis?",
+            a: "Carbon Dioxide (CO₂)",
+            cat: "Science",
+          },
+          {
+            q: "What is the hardest natural substance on Earth?",
+            a: "Diamond",
+            cat: "Science",
+          },
+          {
+            q: "How many legs does a spider have?",
+            a: "8",
+            cat: "Science",
+          },
+          {
+            q: "What planet is known as the Red Planet?",
+            a: "Mars",
+            cat: "Science",
+          },
+          {
+            q: "What is the powerhouse of the cell?",
+            a: "Mitochondria",
+            cat: "Science",
+          },
+          {
+            q: "What is the chemical symbol for water?",
+            a: "H₂O",
+            cat: "Science",
+          },
+          {
+            q: "What type of animal is a dolphin?",
+            a: "Mammal",
+            cat: "Science",
+          },
+          {
+            q: "How many bones are in the adult human body?",
+            a: "206",
+            cat: "Science",
+          },
+          {
+            q: "What is the most abundant gas in Earth's atmosphere?",
+            a: "Nitrogen",
+            cat: "Science",
+          },
+          {
+            q: "What organ pumps blood through the human body?",
+            a: "Heart",
+            cat: "Science",
+          },
+          {
+            q: "What is the name of the layer of gases surrounding the Earth?",
+            a: "Atmosphere",
+            cat: "Science",
+          },
+          {
+            q: "What do you call a scientist who studies rocks?",
+            a: "Geologist",
+            cat: "Science",
+          },
+          {
+            q: "What is the force that pulls objects toward Earth?",
+            a: "Gravity",
+            cat: "Science",
+          },
+          {
+            q: "What is the largest organ in the human body?",
+            a: "Skin",
+            cat: "Science",
+          },
+          {
+            q: "What planet has the most moons in our solar system?",
+            a: "Saturn",
+            cat: "Science",
+          },
+          {
+            q: "How many chambers does the human heart have?",
+            a: "4",
+            cat: "Science",
+          },
+          {
+            q: "What is the process by which water turns into vapor?",
+            a: "Evaporation",
+            cat: "Science",
+          },
+          {
+            q: "What type of blood cells fight infections?",
+            a: "White blood cells",
+            cat: "Science",
+          },
+          {
+            q: "Which planet is the largest in our solar system?",
+            a: "Jupiter",
+            cat: "Science",
+          },
+          {
+            q: "What is the speed of light approximately in km/s?",
+            a: "300,000 km/s",
+            cat: "Science",
+          },
+          {
+            q: "What do you call animals that eat only plants?",
+            a: "Herbivores",
+            cat: "Science",
+          },
+          {
+            q: "What gas do humans breathe out?",
+            a: "Carbon Dioxide",
+            cat: "Science",
+          },
+          {
+            q: "What is the smallest planet in our solar system?",
+            a: "Mercury",
+            cat: "Science",
+          },
+          {
+            q: "What is the boiling point of water in Celsius?",
+            a: "100°C",
+            cat: "Science",
+          },
+          {
+            q: "What is 12 × 12?",
+            a: "144",
+            cat: "Math",
+          },
+          {
+            q: "What is the square root of 81?",
+            a: "9",
+            cat: "Math",
+          },
+          {
+            q: "How many sides does a hexagon have?",
+            a: "6",
+            cat: "Math",
+          },
+          {
+            q: "What is 25% of 200?",
+            a: "50",
+            cat: "Math",
+          },
+          {
+            q: "What is 3/4 as a decimal?",
+            a: "0.75",
+            cat: "Math",
+          },
+          {
+            q: "What is the value of Pi rounded to two decimal places?",
+            a: "3.14",
+            cat: "Math",
+          },
+          {
+            q: "What is the perimeter of a square with sides of 7 cm?",
+            a: "28 cm",
+            cat: "Math",
+          },
+          {
+            q: "How many degrees are in a right angle?",
+            a: "90",
+            cat: "Math",
+          },
+          {
+            q: "What is 144 ÷ 12?",
+            a: "12",
+            cat: "Math",
+          },
+          {
+            q: "What is the sum of angles in a triangle?",
+            a: "180 degrees",
+            cat: "Math",
+          },
+          {
+            q: "What is 7 to the power of 2?",
+            a: "49",
+            cat: "Math",
+          },
+          {
+            q: "How many millimeters are in 1 centimeter?",
+            a: "10",
+            cat: "Math",
+          },
+          {
+            q: "What is 15% of 60?",
+            a: "9",
+            cat: "Math",
+          },
+          {
+            q: "What is the smallest prime number?",
+            a: "2",
+            cat: "Math",
+          },
+          {
+            q: "If a rectangle is 8 cm long and 5 cm wide, what is its area?",
+            a: "40 cm²",
+            cat: "Math",
+          },
+          {
+            q: "What is 1,000 ÷ 25?",
+            a: "40",
+            cat: "Math",
+          },
+          {
+            q: "How many degrees are in a full circle?",
+            a: "360",
+            cat: "Math",
+          },
+          {
+            q: "What is the next prime number after 7?",
+            a: "11",
+            cat: "Math",
+          },
+          {
+            q: "What is 2⁵?",
+            a: "32",
+            cat: "Math",
+          },
+          {
+            q: "What is 5! (5 factorial)?",
+            a: "120",
+            cat: "Math",
+          },
+          {
+            q: "How many sides does an octagon have?",
+            a: "8",
+            cat: "Math",
+          },
+          {
+            q: "What is 0.6 as a fraction in simplest form?",
+            a: "3/5",
+            cat: "Math",
+          },
+          {
+            q: "What is the area of a circle with radius 1 (use π ≈ 3.14)?",
+            a: "3.14",
+            cat: "Math",
+          },
+          {
+            q: "What is 9 × 7?",
+            a: "63",
+            cat: "Math",
+          },
+          {
+            q: "If you have $20 and spend $13.50, how much is left?",
+            a: "$6.50",
+            cat: "Math",
+          },
+          {
+            q: "What is the capital of France?",
+            a: "Paris",
+            cat: "Geography",
+          },
+          {
+            q: "What is the longest river in the world?",
+            a: "Nile River",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Australia?",
+            a: "Canberra",
+            cat: "Geography",
+          },
+          {
+            q: "Which continent is the largest by area?",
+            a: "Asia",
+            cat: "Geography",
+          },
+          {
+            q: "What ocean is the largest on Earth?",
+            a: "Pacific Ocean",
+            cat: "Geography",
+          },
+          {
+            q: "What country has the most people in the world?",
+            a: "India",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Japan?",
+            a: "Tokyo",
+            cat: "Geography",
+          },
+          {
+            q: "What is the tallest mountain in the world?",
+            a: "Mount Everest",
+            cat: "Geography",
+          },
+          {
+            q: "Which country is the Sahara Desert located in primarily?",
+            a: "Multiple African countries / Africa",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Brazil?",
+            a: "Brasília",
+            cat: "Geography",
+          },
+          {
+            q: "What is the smallest country in the world?",
+            a: "Vatican City",
+            cat: "Geography",
+          },
+          {
+            q: "How many continents are there?",
+            a: "7",
+            cat: "Geography",
+          },
+          {
+            q: "What river flows through Egypt?",
+            a: "The Nile",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Canada?",
+            a: "Ottawa",
+            cat: "Geography",
+          },
+          {
+            q: "Which U.S. state is the largest by area?",
+            a: "Alaska",
+            cat: "Geography",
+          },
+          {
+            q: "What country does the Amazon Rainforest primarily belong to?",
+            a: "Brazil",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Germany?",
+            a: "Berlin",
+            cat: "Geography",
+          },
+          {
+            q: "What two countries share the longest border in the world?",
+            a: "USA and Canada",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of South Africa?",
+            a: "Pretoria (or Cape Town / Bloemfontein)",
+            cat: "Geography",
+          },
+          {
+            q: "In which continent is the country of Egypt located?",
+            a: "Africa",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of China?",
+            a: "Beijing",
+            cat: "Geography",
+          },
+          {
+            q: "What ocean lies between Europe and America?",
+            a: "Atlantic Ocean",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Italy?",
+            a: "Rome",
+            cat: "Geography",
+          },
+          {
+            q: "Which desert is the largest hot desert in the world?",
+            a: "Sahara Desert",
+            cat: "Geography",
+          },
+          {
+            q: "What is the name of the ocean between Africa and Australia?",
+            a: "Indian Ocean",
+            cat: "Geography",
+          },
+        ],
+        B: [
+          {
+            q: "What gas do humans need to breathe to stay alive?",
+            a: "Oxygen",
+            cat: "Science",
+          },
+          {
+            q: "What is the largest star in our solar system?",
+            a: "The Sun",
+            cat: "Science",
+          },
+          {
+            q: "How many states of matter are commonly taught in school?",
+            a: "Three (solid, liquid, gas)",
+            cat: "Science",
+          },
+          {
+            q: "What part of a plant absorbs water and nutrients from the soil?",
+            a: "Roots",
+            cat: "Science",
+          },
+          {
+            q: "What part of the cell contains the genetic material (DNA)?",
+            a: "Nucleus",
+            cat: "Science",
+          },
+          {
+            q: "What is the process by which plants make their own food using sunlight called?",
+            a: "Photosynthesis",
+            cat: "Science",
+          },
+          {
+            q: "What do you call animals that eat both plants and meat?",
+            a: "Omnivores",
+            cat: "Science",
+          },
+          {
+            q: "What is the center of our solar system?",
+            a: "The Sun",
+            cat: "Science",
+          },
+          {
+            q: "What is the center of an atom called?",
+            a: "Nucleus",
+            cat: "Science",
+          },
+          {
+            q: "What is the name of the galaxy that contains our solar system?",
+            a: "The Milky Way",
+            cat: "Science",
+          },
+          {
+            q: "What is 8 × 9?",
+            a: "72",
+            cat: "Math",
+          },
+          {
+            q: "What is 15 × 4?",
+            a: "60",
+            cat: "Math",
+          },
+          {
+            q: "What is 90 ÷ 10?",
+            a: "9",
+            cat: "Math",
+          },
+          {
+            q: "What is 3² (3 to the power of 2)?",
+            a: "9",
+            cat: "Math",
+          },
+          {
+            q: "What is 1/2 as a decimal?",
+            a: "0.5",
+            cat: "Math",
+          },
+          {
+            q: "What is 40% of 50?",
+            a: "20",
+            cat: "Math",
+          },
+          {
+            q: "How many sides does a pentagon have?",
+            a: "5",
+            cat: "Math",
+          },
+          {
+            q: "What is the sum of the angles in a quadrilateral?",
+            a: "360 degrees",
+            cat: "Math",
+          },
+          {
+            q: "What is 7 × 8?",
+            a: "56",
+            cat: "Math",
+          },
+          {
+            q: "If a book costs $12 and you pay with $20, how much change should you get?",
+            a: "$8",
+            cat: "Math",
+          },
+          {
+            q: "What is the largest country in the world by area?",
+            a: "Russia",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Spain?",
+            a: "Madrid",
+            cat: "Geography",
+          },
+          {
+            q: "On which continent is the country of Brazil located?",
+            a: "South America",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital city of India?",
+            a: "New Delhi",
+            cat: "Geography",
+          },
+          {
+            q: "Which ocean is on the west coast of the United States?",
+            a: "Pacific Ocean",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of the United Kingdom?",
+            a: "London",
+            cat: "Geography",
+          },
+          {
+            q: "Which continent is sometimes called the 'Frozen Continent'?",
+            a: "Antarctica",
+            cat: "Geography",
+          },
+          {
+            q: "Which African river is famous for Victoria Falls?",
+            a: "The Zambezi River",
+            cat: "Geography",
+          },
+          {
+            q: "What U.S. state is known as the 'Sunshine State'?",
+            a: "Florida",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Mexico?",
+            a: "Mexico City",
+            cat: "Geography",
+          },
+        ],
+        C: [
+          {
+            q: "What instrument is used to measure temperature?",
+            a: "Thermometer",
+            cat: "Science",
+          },
+          {
+            q: "What force keeps the planets in orbit around the Sun?",
+            a: "Gravity",
+            cat: "Science",
+          },
+          {
+            q: "What do bees collect from flowers to make honey?",
+            a: "Nectar",
+            cat: "Science",
+          },
+          {
+            q: "What organ helps you breathe by filling with air?",
+            a: "Lungs",
+            cat: "Science",
+          },
+          {
+            q: "What is the main source of energy for life on Earth?",
+            a: "The Sun",
+            cat: "Science",
+          },
+          {
+            q: "What do we call a baby frog?",
+            a: "Tadpole",
+            cat: "Science",
+          },
+          {
+            q: "What is the name for animals that sleep during the day and are active at night?",
+            a: "Nocturnal animals",
+            cat: "Science",
+          },
+          {
+            q: "What gas do fizzy drinks release when opened?",
+            a: "Carbon dioxide",
+            cat: "Science",
+          },
+          {
+            q: "What is the process of a liquid turning into a solid called?",
+            a: "Freezing",
+            cat: "Science",
+          },
+          {
+            q: "What is Earth’s only natural satellite called?",
+            a: "The Moon",
+            cat: "Science",
+          },
+          {
+            q: "What is 6 × 11?",
+            a: "66",
+            cat: "Math",
+          },
+          {
+            q: "What is 18 ÷ 3?",
+            a: "6",
+            cat: "Math",
+          },
+          {
+            q: "What is 2.5 + 1.5?",
+            a: "4",
+            cat: "Math",
+          },
+          {
+            q: "What is the square root of 64?",
+            a: "8",
+            cat: "Math",
+          },
+          {
+            q: "If a rectangle is 10 cm long and 3 cm wide, what is its area?",
+            a: "30 cm²",
+            cat: "Math",
+          },
+          {
+            q: "What is 1/4 as a decimal?",
+            a: "0.25",
+            cat: "Math",
+          },
+          {
+            q: "What is 60% of 50?",
+            a: "30",
+            cat: "Math",
+          },
+          {
+            q: "How many edges does a cube have?",
+            a: "12",
+            cat: "Math",
+          },
+          {
+            q: "If a triangle has sides 3 cm, 4 cm, and 5 cm, what is its perimeter?",
+            a: "12 cm",
+            cat: "Math",
+          },
+          {
+            q: "In the fraction 7/8, what number is the denominator?",
+            a: "8",
+            cat: "Math",
+          },
+          {
+            q: "Which continent is the country of Japan on?",
+            a: "Asia",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Russia?",
+            a: "Moscow",
+            cat: "Geography",
+          },
+          {
+            q: "Which ocean is on the east coast of the United States?",
+            a: "Atlantic Ocean",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Egypt?",
+            a: "Cairo",
+            cat: "Geography",
+          },
+          {
+            q: "Which country is famous for the Great Wall near Beijing?",
+            a: "China",
+            cat: "Geography",
+          },
+          {
+            q: "Which continent is the country of Canada on?",
+            a: "North America",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Argentina?",
+            a: "Buenos Aires",
+            cat: "Geography",
+          },
+          {
+            q: "Which country is known as the Land of the Rising Sun?",
+            a: "Japan",
+            cat: "Geography",
+          },
+          {
+            q: "Which U.S. state is known for the Grand Canyon?",
+            a: "Arizona",
+            cat: "Geography",
+          },
+          {
+            q: "What is the capital of Nigeria?",
+            a: "Abuja",
+            cat: "Geography",
+          },
+        ],
+      };
+
+      // ===================== GAME STATE =====================
+      let questions = [];
+      let currentIndex = 0;
+      let timeLeft = 60;
+      let timerInterval = null;
+      let gameActive = false;
+      let stats = { correct: 0, wrong: 0, skip: 0 };
+      let totalPoints = 0;
+      let history = [];
+      let playerWindow = null;
+      let playerFlashing = false;
+
+      function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function getPlayerDisplayHTML(q, qNum, total, timeLeft, started) {
+        const bgColor = "#EFF6FF";
+        const gold = "#F59E0B";
+        const accent = "#7C3AED";
+        const timerPct = (timeLeft / 60) * 100;
+        const timerColor =
+          timeLeft <= 10 ? "#EF4444" : timeLeft <= 20 ? "#F97316" : gold;
+
+        const qText =
+          started && q
+            ? q.q
+            : started
+            ? "Get Ready!"
+            : "Waiting for Host to Start...";
+        const catText = started && q ? q.cat : "";
+        const qLabel = started && q ? `Question ${qNum} of ${total}` : "";
+
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<title>Are You Smarter Than a 5th Grader?</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:${bgColor};font-family:'Nunito',sans-serif;color:#1E1B4B;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(6px 6px at 10% 20%,rgba(245,158,11,0.2) 0%,transparent 100%),radial-gradient(5px 5px at 60% 10%,rgba(124,58,237,0.18) 0%,transparent 100%),radial-gradient(4px 4px at 80% 70%,rgba(16,185,129,0.18) 0%,transparent 100%),radial-gradient(6px 6px at 20% 80%,rgba(249,115,22,0.18) 0%,transparent 100%);pointer-events:none;}
+.title{font-family:'Fredoka One',cursive;font-size:clamp(1.5rem,4vw,2.4rem);color:${gold};text-shadow:3px 3px 0 rgba(0,0,0,0.1);text-align:center;margin-bottom:32px;letter-spacing:1px;}
+.main-card{background:#FFFFFF;border:2px solid rgba(245,158,11,0.3);border-radius:28px;padding:clamp(28px,5vw,52px);max-width:800px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.1);position:relative;overflow:hidden;}
+.main-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,${gold},${accent},${gold});background-size:200% 100%;animation:shimmer 2s linear infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;min-height:30px;}
+.q-num{font-family:'Fredoka One',cursive;font-size:1rem;color:${gold};background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);padding:5px 16px;border-radius:20px;}
+.q-cat{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:${accent};background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.25);padding:5px 14px;border-radius:20px;}
+.q-text{font-size:clamp(1.4rem,3.5vw,2.2rem);font-weight:900;line-height:1.35;color:#1E1B4B;margin:8px 0 20px;min-height:80px;display:flex;align-items:center;justify-content:center;}
+.timer-section{margin-top:20px;}
+.timer-big{font-family:'Fredoka One',cursive;font-size:clamp(3rem,8vw,5.5rem);color:${timerColor};line-height:1;transition:color 0.3s;}
+.timer-bar-wrap{background:rgba(100,116,139,0.15);border-radius:8px;height:12px;margin-top:10px;overflow:hidden;}
+.timer-bar{height:100%;border-radius:8px;background:${timerColor};width:${timerPct}%;transition:width 1s linear,background 0.3s;}
+.timer-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:#64748B;font-weight:700;margin-top:8px;}
+</style></head><body>
+<div class="title">🎓 Are You Smarter Than a 5th Grader?</div>
+<div class="main-card">
+  <div class="q-meta">
+    <span class="q-num">${qLabel || "&nbsp;"}</span>
+    <span class="q-cat">${catText || "&nbsp;"}</span>
+  </div>
+  <div class="q-text">${qText}</div>
+  <div class="timer-section">
+    <div class="timer-big">${Math.floor(timeLeft / 60)}:${String(
+          timeLeft % 60
+        ).padStart(2, "0")}</div>
+    <div class="timer-bar-wrap"><div class="timer-bar"></div></div>
+    <div class="timer-label">seconds remaining</div>
+  </div>
+</div>
+</body></html>`;
+      }
+
+      function openPlayerDisplay() {
+        playerWindow = window.open(
+          "",
+          "playerDisplay",
+          "width=900,height=600,toolbar=no,menubar=no,scrollbars=no"
+        );
+        if (playerWindow) {
+          const currentQ =
+            gameActive && questions[currentIndex]
+              ? questions[currentIndex]
+              : null;
+          playerWindow.document.open();
+          playerWindow.document.write(
+            getPlayerDisplayHTML(
+              currentQ,
+              currentIndex + 1,
+              questions.length,
+              timeLeft,
+              gameActive
+            )
+          );
+          playerWindow.document.close();
+        }
+      }
+
+      function updatePlayerDisplay() {
+        if (!playerWindow || playerWindow.closed || playerFlashing) return;
+        const currentQ = questions[currentIndex] || null;
+        playerWindow.document.open();
+        playerWindow.document.write(
+          getPlayerDisplayHTML(
+            currentQ,
+            currentIndex + 1,
+            questions.length,
+            timeLeft,
+            gameActive
+          )
+        );
+        playerWindow.document.close();
+      }
+
+      function enableSetButtons(on) {
+        ["btnSetA", "btnSetB", "btnSetC"].forEach((id) => {
+          document.getElementById(id).disabled = !on;
+        });
+      }
+
+      function startGame(setName) {
+        const setQuestions = questionSets[setName] || [];
+        if (setQuestions.length === 0) {
+          alert("Set " + setName + " has no questions yet!");
+          return;
+        }
+        questions = shuffle(setQuestions);
+        currentIndex = 0;
+        stats = { correct: 0, wrong: 0, skip: 0 };
+        totalPoints = 0;
+        history = [];
+        timeLeft = 60;
+        gameActive = true;
+
+        updateScoreDisplay();
+        updateHistoryDisplay();
+        showQuestion();
+        enableButtons(true);
+        enableSetButtons(false);
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+          updatePlayerDisplay();
+
+          if (timeLeft <= 0) {
+            endGame();
+          }
+        }, 1000);
+
+        updateTimerDisplay();
+        updatePlayerDisplay();
+      }
+
+      function showQuestion() {
+        if (currentIndex >= questions.length) {
+          endGame();
+          return;
+        }
+        const q = questions[currentIndex];
+        document.getElementById("qNumber").textContent = `Question ${
+          currentIndex + 1
+        } of ${questions.length}`;
+        document.getElementById("qCategory").textContent = q.cat;
+        document.getElementById("questionText").textContent = q.q;
+        document.getElementById("answerText").textContent = q.a;
+        updatePlayerDisplay();
+      }
+
+      function flashPlayerFeedback(type) {
+        if (!playerWindow || playerWindow.closed) return;
+        const doc = playerWindow.document;
+        const overlay = doc.createElement("div");
+        let symbol, color;
+        if (type === "correct") {
+          symbol = "✓";
+          color = "#10b981";
+        } else if (type === "wrong") {
+          symbol = "✗";
+          color = "#ef4444";
+        } else {
+          symbol = "⏭";
+          color = "#f97316";
+        }
+        Object.assign(overlay.style, {
+          position: "fixed",
+          inset: "0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: "9999",
+          pointerEvents: "none",
+          background: color + "22",
+          animation: "feedbackFade 0.8s ease-out forwards",
+        });
+        overlay.innerHTML = `<span style="font-size:clamp(8rem,30vw,20rem);color:${color};font-weight:900;opacity:0;animation:feedbackPop 0.8s ease-out forwards;text-shadow:0 0 60px ${color}88;">${symbol}</span>`;
+        const style = doc.createElement("style");
+        style.textContent = `
+          @keyframes feedbackPop { 0%{opacity:0;transform:scale(0.3);} 30%{opacity:1;transform:scale(1.15);} 60%{opacity:1;transform:scale(1);} 100%{opacity:0;transform:scale(1.1);} }
+          @keyframes feedbackFade { 0%{opacity:1;} 100%{opacity:0;} }
+        `;
+        doc.head.appendChild(style);
+        doc.body.appendChild(overlay);
+        playerFlashing = true;
+        setTimeout(() => {
+          playerFlashing = false;
+          overlay.remove();
+          style.remove();
+        }, 850);
+      }
+
+      function recordAnswer(type) {
+        if (!gameActive || currentIndex >= questions.length) return;
+
+        const q = questions[currentIndex];
+        let pts = 0;
+        let icon = "";
+        let ptsClass = "";
+
+        if (type === "correct") {
+          stats.correct++;
+          totalPoints += 5;
+          pts = 5;
+          icon = "✅";
+          ptsClass = "pos";
+        } else if (type === "wrong") {
+          stats.wrong++;
+          icon = "❌";
+          ptsClass = "neg";
+        } else {
+          stats.skip++;
+          icon = "⏭";
+          ptsClass = "skip-c";
+        }
+
+        history.unshift({ q: q.q, type, pts, icon, ptsClass });
+        currentIndex++;
+
+        updateScoreDisplay();
+        updateHistoryDisplay();
+
+        // Flash feedback on player display before showing next question
+        flashPlayerFeedback(type);
+
+        if (currentIndex >= questions.length) {
+          // Delay endGame so the flash is visible
+          setTimeout(() => endGame(), 900);
+        } else {
+          // Delay next question so the flash is visible
+          setTimeout(() => showQuestion(), 900);
+        }
+      }
+
+      function updateTimerDisplay() {
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        const display = document.getElementById("timerDisplay");
+        display.textContent = `${mins}:${String(secs).padStart(2, "0")}`;
+
+        display.className = "timer-display";
+        if (timeLeft <= 10) display.classList.add("danger");
+        else if (timeLeft <= 20) display.classList.add("warning");
+
+        const bar = document.getElementById("timerBar");
+        bar.style.width = `${(timeLeft / 60) * 100}%`;
+        if (timeLeft <= 10) {
+          bar.style.background = "#FF1744";
+        } else if (timeLeft <= 20) {
+          bar.style.background = "#FF9100";
+        } else {
+          bar.style.background = "var(--gold)";
+        }
+      }
+
+      function updateScoreDisplay() {
+        document.getElementById("correctCount").textContent = stats.correct;
+        document.getElementById("wrongCount").textContent = stats.wrong;
+        document.getElementById("skipCount").textContent = stats.skip;
+        document.getElementById("totalPoints").textContent = totalPoints;
+      }
+
+      function updateHistoryDisplay() {
+        const list = document.getElementById("historyList");
+        if (history.length === 0) {
+          list.innerHTML =
+            '<div style="color:var(--muted);font-size:0.8rem;">No questions answered yet.</div>';
+          return;
+        }
+        list.innerHTML = history
+          .map(
+            (h) => `
+    <div class="history-item">
+      <span class="hist-icon">${h.icon}</span>
+      <span class="hist-q">${h.q}</span>
+      <span class="hist-pts ${h.ptsClass}">${
+              h.pts > 0 ? "+" + h.pts : "0"
+            }</span>
+    </div>
+  `
+          )
+          .join("");
+      }
+
+      function enableButtons(on) {
+        ["btnCorrect", "btnWrong", "btnSkip"].forEach((id) => {
+          document.getElementById(id).disabled = !on;
+        });
+      }
+
+      function endGame() {
+        clearInterval(timerInterval);
+        gameActive = false;
+        enableButtons(false);
+        enableSetButtons(true);
+
+        // Show final player display
+        if (playerWindow && !playerWindow.closed) {
+          const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<title>Are You Smarter Than a 5th Grader?</title>
+<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#EFF6FF;font-family:'Nunito',sans-serif;color:#1E1B4B;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;}
+.title{font-family:'Fredoka One',cursive;font-size:clamp(2rem,5vw,3rem);color:#F59E0B;text-shadow:3px 3px 0 rgba(0,0,0,0.1);margin-bottom:20px;}
+.score{font-family:'Fredoka One',cursive;font-size:clamp(4rem,12vw,8rem);color:#1E1B4B;line-height:1;animation:pop 0.5s ease;}
+@keyframes pop{0%{transform:scale(0.5);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.label{font-size:1rem;letter-spacing:3px;text-transform:uppercase;color:#64748B;font-weight:700;margin-bottom:10px;}
+.verdict{font-family:'Fredoka One',cursive;font-size:clamp(1.2rem,3vw,2rem);color:#7C3AED;margin-top:20px;}
+</style></head><body>
+<div class="title">⏰ Time's Up!</div>
+<div class="label">Final Score</div>
+<div class="score">${totalPoints} pts</div>
+<div class="verdict">${getVerdict()}</div>
+</body></html>`;
+          playerWindow.document.open();
+          playerWindow.document.write(html);
+          playerWindow.document.close();
+        }
+
+        // Show result overlay
+        document.getElementById("rCorrect").textContent = stats.correct;
+        document.getElementById("rWrong").textContent = stats.wrong;
+        document.getElementById("rSkip").textContent = stats.skip;
+        document.getElementById(
+          "resultScore"
+        ).textContent = `${totalPoints} pts`;
+        document.getElementById("smarter-verdict").textContent = getVerdict();
+
+        const maxPossible = questions.length * 5;
+        const pct = maxPossible > 0 ? (totalPoints / maxPossible) * 100 : 0;
+        document.getElementById("resultTitle").textContent =
+          pct >= 80
+            ? "🏆 Outstanding!"
+            : pct >= 60
+            ? "🎓 Well Done!"
+            : pct >= 40
+            ? "📚 Not Bad!"
+            : "😬 Oof!";
+
+        document.getElementById("resultOverlay").classList.add("show");
+
+        if (totalPoints >= 70) launchConfetti();
+      }
+
+      function getVerdict() {
+        const pct =
+          questions.length > 0
+            ? (totalPoints / (questions.length * 5)) * 100
+            : 0;
+        if (pct >= 80) return "🏆 You ARE smarter than a 5th grader!";
+        if (pct >= 60) return "📚 Pretty smart... almost 5th grade level!";
+        if (pct >= 40) return "🤔 A 5th grader might edge you out...";
+        return "😬 Looks like you need to go back to school!";
+      }
+
+      function closeResult() {
+        document.getElementById("resultOverlay").classList.remove("show");
+        resetGame();
+      }
+
+      function resetGame() {
+        clearInterval(timerInterval);
+        gameActive = false;
+        timeLeft = 60;
+        currentIndex = 0;
+        stats = { correct: 0, wrong: 0, skip: 0 };
+        totalPoints = 0;
+        history = [];
+
+        document.getElementById("qNumber").textContent = "—";
+        document.getElementById("qCategory").textContent = "—";
+        document.getElementById("questionText").textContent =
+          "Press START to begin the round!";
+        document.getElementById("answerText").textContent = "—";
+        document.getElementById("timerDisplay").textContent = "1:00";
+        document.getElementById("timerDisplay").className = "timer-display";
+        document.getElementById("timerBar").style.width = "100%";
+        document.getElementById("timerBar").style.background = "var(--gold)";
+        enableSetButtons(true);
+
+        updateScoreDisplay();
+        updateHistoryDisplay();
+        enableButtons(false);
+
+        if (playerWindow && !playerWindow.closed) {
+          playerWindow.document.open();
+          playerWindow.document.write(
+            getPlayerDisplayHTML(null, 0, 20, 60, false)
+          );
+          playerWindow.document.close();
+        }
+      }
+
+      function launchConfetti() {
+        const colors = [
+          "#FFD700",
+          "#FF1744",
+          "#00C853",
+          "#4FC3F7",
+          "#FF9100",
+          "#E040FB",
+        ];
+        for (let i = 0; i < 80; i++) {
+          setTimeout(() => {
+            const el = document.createElement("div");
+            el.className = "confetti-piece";
+            el.style.left = Math.random() * 100 + "vw";
+            el.style.background =
+              colors[Math.floor(Math.random() * colors.length)];
+            el.style.animationDuration = 2 + Math.random() * 2 + "s";
+            el.style.animationDelay = Math.random() * 0.5 + "s";
+            el.style.width = el.style.height = 8 + Math.random() * 8 + "px";
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+          }, i * 30);
+        }
+      }
+    </script>
+  </body>
+</html>
