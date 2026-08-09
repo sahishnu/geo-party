@@ -1,0 +1,427 @@
+{
+  "settings": {
+    "game_name": "Jeo Party",
+    "tiles_per_side": 9,
+    "jail_penalty": 50,
+    "tax_penalty": 50,
+    "starting_score": 100
+  },
+  "teams": [
+    {
+      "name": "Lions",
+      "icon": "🦁"
+    },
+    {
+      "name": "Goats",
+      "icon": "🐐"
+    },
+    {
+      "name": "Owls",
+      "icon": "🦉"
+    },
+    {
+      "name": "Dragons",
+      "icon": "🐉"
+    },
+    {
+      "name": "Eagles",
+      "icon": "🦅"
+    },
+    {
+      "name": "Bears",
+      "icon": "🐻"
+    }
+  ],
+  "tiles": [
+    {
+      "position": 0,
+      "label": "",
+      "tile_type": "start",
+      "color_group": "gray"
+    },
+    {
+      "position": 1,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 2,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 3,
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
+      "position": 4,
+      "label": "",
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
+    },
+    {
+      "position": 5,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 6,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 7,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 8,
+      "label": "Jail",
+      "tile_type": "jail",
+      "color_group": "orange"
+    },
+    {
+      "position": 9,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 10,
+      "label": "",
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
+    },
+    {
+      "position": 11,
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
+      "position": 12,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 13,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 14,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 15,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 16,
+      "label": "",
+      "tile_type": "pot",
+      "color_group": "purple"
+    },
+    {
+      "position": 17,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 18,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 19,
+      "label": "",
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
+    },
+    {
+      "position": 20,
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
+      "position": 21,
+      "label": "",
+      "tile_type": "head_to_head",
+      "color_group": "head_to_head"
+    },
+    {
+      "position": 22,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 23,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 24,
+      "label": "Go to Jail",
+      "tile_type": "go_to_jail",
+      "color_group": "orange"
+    },
+    {
+      "position": 25,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 26,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    },
+    {
+      "position": 27,
+      "label": "Chance",
+      "tile_type": "chance",
+      "color_group": "indigo"
+    },
+    {
+      "position": 28,
+      "label": "",
+      "tile_type": "rainbow",
+      "color_group": "rainbow"
+    },
+    {
+      "position": 29,
+      "label": "Pay Tax",
+      "tile_type": "pay_taxes",
+      "color_group": "pink"
+    },
+    {
+      "position": 30,
+      "label": "",
+      "tile_type": "all_teams",
+      "color_group": "all_teams"
+    },
+    {
+      "position": 31,
+      "label": "",
+      "tile_type": "solo",
+      "color_group": "solo"
+    }
+  ],
+  "cards": [
+    {
+      "deck_type": "chance",
+      "title": "It's your birthday!",
+      "content": "Gain 100 points!",
+      "emoji": "🎂"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Pay Taxes!",
+      "content": "Pay 50 points in taxes",
+      "emoji": "🏦"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Musical Chairs",
+      "content": "Swap board positions with the team in last position",
+      "emoji": "💺🎶"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Score Swap",
+      "content": "Swap points with the team in last place",
+      "emoji": "🔄"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Top Trade",
+      "content": "Swap points with the team in first place",
+      "emoji": "👑"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Generous Move",
+      "content": "Give each team 10 of your points",
+      "emoji": "🎁"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Payday",
+      "content": "Collect 10 points from every other team",
+      "emoji": "🤑"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Fast Track",
+      "content": "Go directly to Start — collect 50 bonus points",
+      "emoji": "🚀"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Busted!",
+      "content": "Go directly to Jail — do not pass Start",
+      "emoji": "🚔"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Double Down",
+      "content": "Double your points from your next activity",
+      "emoji": "✖️2️⃣"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Lucky Roll",
+      "content": "Roll again!",
+      "emoji": "🎲"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Robin Hood",
+      "content": "Steal 50 points from the team in 1st place and give them to the team in last place",
+      "emoji": "🏹"
+    },
+    {
+      "deck_type": "chance",
+      "title": "All In!",
+      "content": "Bet if the sum of your 2 dice rolls is above or below 7. If you're right, double your points. If you're wrong, lose half your points. On exactly 7, you must reroll.",
+      "emoji": "🃏"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Jackpot!",
+      "content": "Gain points equal to your current board position × 10",
+      "emoji": "🎰"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Point Pirate",
+      "content": "Steal 25 points from the team directly ahead of you on the board",
+      "emoji": "🏴‍☠️"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Earthquake!",
+      "content": "ALL teams move to random board positions",
+      "emoji": "🌋"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Mirror Mirror",
+      "content": "Choose any team — swap your board position with theirs",
+      "emoji": "🪞"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Hot Potato",
+      "content": "Pass this card to another team — they lose 30 points",
+      "emoji": "🥔"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Communism",
+      "content": "All teams' points are pooled and redistributed equally",
+      "emoji": "🟰"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Cursed Dice",
+      "content": "You only roll 1 dice next turn",
+      "emoji": "🐍"
+    },
+    {
+      "deck_type": "chance",
+      "title": "Enchanted Dice",
+      "content": "You roll only 1 dice next turn but get to choose the value of the 2nd dice from 1–6",
+      "emoji": "🧙"
+    }
+  ],
+  "activities": [
+    {
+      "title": "Brain Teasers",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Reverse Charades",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Are You Smarter Than a 5th Grader?",
+      "game_mode": "solo"
+    },
+    {
+      "title": "America Says",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Chain Reaction",
+      "game_mode": "solo"
+    },
+    {
+      "title": "Minesweeper",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Mission Impossible",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Quiet Challenge",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Head, Shoulders, Knees, and Toes",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Fruit by the Foot",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Team Pen Holding Challenge",
+      "game_mode": "head_to_head"
+    },
+    {
+      "title": "Guess & Sing That Tune",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "Sit Down Number Challenge",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "Wheel of Fortune",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "The Price is Right",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "Memory Tray",
+      "game_mode": "all_teams"
+    },
+    {
+      "title": "Human Knot",
+      "game_mode": "all_teams"
+    }
+  ]
+}

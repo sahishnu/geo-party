@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
+import { resetToSeed } from '../../lib/store'
 import type { GameConfig, TileType, DeckType, GameMode } from '../../types/database'
 
 interface GameSeed {
@@ -257,6 +258,17 @@ export default function SettingsTab({ config }: { config: GameConfig }) {
           Import a JSON file or paste JSON to set up the entire game at once.
           This will <strong className="text-red-400">clear all existing data</strong> (teams, tiles, cards, activities, event log) and replace it.
         </p>
+
+        <button
+          onClick={() => {
+            if (confirm('Reset the game to the bundled demo data? This clears all current data.')) {
+              resetToSeed()
+            }
+          }}
+          className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-semibold"
+        >
+          ↩︎ Reset to demo data
+        </button>
 
         <div className="flex gap-2">
           <input

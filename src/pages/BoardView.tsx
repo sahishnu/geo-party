@@ -353,6 +353,17 @@ export default function BoardView() {
         </div>
       )}
 
+      {/* Demo affordance: this is a single-host game — the admin panel drives it
+          from another window. Subtle so it doesn't intrude on a projector view. */}
+      <a
+        href="/admin"
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-3 left-3 z-50 rounded-full bg-white/70 px-3 py-1.5 text-xs font-semibold text-gray-500 shadow-sm backdrop-blur transition hover:bg-white hover:text-gray-800"
+      >
+        Open admin ↗
+      </a>
+
       {/* ── Board + Player List ── */}
       <div className="flex flex-1 gap-4 px-5 pt-4 overflow-hidden min-h-0">
         {/* Board area */}
